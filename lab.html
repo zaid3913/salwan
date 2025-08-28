@@ -4,15 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام إدارة مستشفى - قسم المختبر</title>
-    <!-- ربط Bootstrap 5 -->
+
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- ربط خطوط Google Fonts -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- ربط Font Awesome -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- ربط Firebase -->
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
     <style>
         :root {
             --primary: #0d6efd;
@@ -26,50 +28,59 @@
             --hospital-blue: #1a75ff;
             --hospital-green: #2ecc71;
             --lab-purple: #9b59b6;
+            --archive: #8e44ad;
+            --inquiries: #3498db;
+            --blood: #e74c3c;
+            --viruses: #2ecc71;
+            --parasites: #f39c12;
+            --chemistry: #9b59b6;
+            --microbiology: #16a085;
+            --hormones: #d35400;
+            --blood-draw: #c0392b;
         }
-        
+
         body {
             font-family: 'Tajawal', sans-serif;
             background-color: #f5f7fa;
             color: #333;
         }
-        
+
         .hospital-header {
             background: linear-gradient(135deg, var(--lab-purple), #8e44ad);
             color: white;
             padding: 20px 0;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-        
+
         .lab-card {
             border: none;
             border-radius: 12px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
             transition: transform 0.3s, box-shadow 0.3s;
         }
-        
+
         .lab-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
         }
-        
+
         .stats-card {
             text-align: center;
             padding: 20px;
         }
-        
+
         .stats-number {
             font-size: 2.5rem;
             font-weight: 700;
         }
-        
+
         .tests-table {
             background: white;
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
         }
-        
+
         .btn-lab {
             background-color: var(--lab-purple);
             color: white;
@@ -79,13 +90,13 @@
             font-weight: 500;
             transition: all 0.3s;
         }
-        
+
         .btn-lab:hover {
             background-color: #8e44ad;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        
+
         .nav-tabs .nav-link {
             border: none;
             border-bottom: 3px solid transparent;
@@ -93,31 +104,31 @@
             font-weight: 500;
             padding: 12px 20px;
         }
-        
+
         .nav-tabs .nav-link.active {
             color: var(--lab-purple);
             border-bottom: 3px solid var(--lab-purple);
             background: transparent;
         }
-        
+
         .form-control, .form-select {
             padding: 12px 15px;
             border-radius: 8px;
             border: 1px solid #ddd;
         }
-        
+
         .form-control:focus, .form-select:focus {
             box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.2);
             border-color: var(--lab-purple);
         }
-        
+
         .section-title {
             position: relative;
             padding-bottom: 15px;
             margin-bottom: 25px;
             font-weight: 700;
         }
-        
+
         .section-title:after {
             content: '';
             position: absolute;
@@ -128,19 +139,19 @@
             background: var(--lab-purple);
             border-radius: 2px;
         }
-        
+
         .test-pending {
             border-right: 4px solid var(--warning);
         }
-        
+
         .test-completed {
             border-right: 4px solid var(--success);
         }
-        
+
         .test-urgent {
             border-right: 4px solid var(--danger);
         }
-        
+
         .department-link {
             color: white;
             text-decoration: none;
@@ -149,59 +160,59 @@
             margin-left: 10px;
             transition: all 0.3s;
         }
-        
+
         .department-link.emergency {
             background-color: rgba(255, 255, 255, 0.2);
         }
-        
+
         .department-link.emergency:hover {
             background-color: rgba(255, 255, 255, 0.3);
         }
-        
+
         .patient-row {
             background-color: #f8f9fa;
             font-weight: bold;
         }
-        
+
         .test-row {
             background-color: white;
         }
-        
+
         .collapse-icon {
             transition: transform 0.3s;
         }
-        
+
         .collapse-icon.collapsed {
             transform: rotate(-90deg);
         }
-        
+
         .result-normal {
             color: var(--success);
             font-weight: bold;
         }
-        
+
         .result-abnormal {
             color: var(--danger);
             font-weight: bold;
         }
-        
+
         .result-pending {
             color: var(--warning);
             font-weight: bold;
         }
-        
+
         /* نمط المودال */
         .modal-content {
             border-radius: 12px;
         }
-        
+
         .modal-header {
             background: linear-gradient(135deg, var(--lab-purple), #8e44ad);
             color: white;
             border-top-left-radius: 12px;
             border-top-right-radius: 12px;
         }
-        
+
         /* نمط ورقة النتيجة */
         .result-paper {
             background: white;
@@ -212,66 +223,66 @@
             max-width: 800px;
             margin: 0 auto;
         }
-        
+
         .result-header {
             text-align: center;
             margin-bottom: 25px;
             border-bottom: 2px solid #eee;
             padding-bottom: 15px;
         }
-        
+
         .hospital-logo {
             font-size: 24px;
             font-weight: bold;
             color: var(--lab-purple);
             margin-bottom: 10px;
         }
-        
+
         .result-title {
             font-size: 22px;
             font-weight: bold;
             color: #333;
         }
-        
+
         .result-patient-info {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
             margin-bottom: 20px;
         }
-        
+
         .result-test-info {
             margin-bottom: 25px;
         }
-        
+
         .result-details {
             margin-bottom: 25px;
         }
-        
+
         .result-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
-        
+
         .result-table th, .result-table td {
             padding: 12px;
             text-align: right;
             border-bottom: 1px solid #eee;
         }
-        
+
         .result-table th {
             background-color: #f8f9fa;
             font-weight: 600;
         }
-        
+
         .result-notes {
             background-color: #f8f9fa;
             padding: 15px;
             border-radius: 6px;
             margin-bottom: 20px;
         }
-        
+
         .result-footer {
             text-align: left;
             margin-top: 30px;
@@ -280,7 +291,7 @@
             font-size: 14px;
             color: #6c757d;
         }
-        
+
         .result-stamp {
             position: absolute;
             bottom: 30px;
@@ -291,26 +302,84 @@
             color: var(--lab-purple);
             pointer-events: none;
         }
-        
+
         .draggable-container {
             cursor: grab;
             user-select: none;
         }
-        
+
         .draggable-container:active {
             cursor: grabbing;
         }
-        
+
+        /* ألوان الأقسام */
+        .department-archive { color: var(--archive); }
+        .department-inquiries { color: var(--inquiries); }
+        .department-blood { color: var(--blood); }
+        .department-viruses { color: var(--viruses); }
+        .department-parasites { color: var(--parasites); }
+        .department-chemistry { color: var(--chemistry); }
+        .department-microbiology { color: var(--microbiology); }
+        .department-hormones { color: var(--hormones); }
+        .department-blood-draw { color: var(--blood-draw); }
+
+        .badge-archive { background-color: var(--archive); }
+        .badge-inquiries { background-color: var(--inquiries); }
+        .badge-blood { background-color: var(--blood); }
+        .badge-viruses { background-color: var(--viruses); }
+        .badge-parasites { background-color: var(--parasites); }
+        .badge-chemistry { background-color: var(--chemistry); }
+        .badge-microbiology { background-color: var(--microbiology); }
+        .badge-hormones { background-color: var(--hormones); }
+        .badge-blood-draw { background-color: var(--blood-draw); }
+
+        /* قائمة الأقسام */
+        .departments-menu {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 15px;
+        }
+
+        .departments-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .department-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .department-badge:hover {
+            opacity: 0.8;
+            transform: translateY(-2px);
+        }
+
+        .department-filter {
+            margin-bottom: 20px;
+        }
+
         @media (max-width: 768px) {
             .stats-number {
                 font-size: 2rem;
             }
-            
+
             .result-patient-info {
                 grid-template-columns: 1fr;
             }
+
+            .departments-list {
+                flex-direction: column;
+                align-items: center;
+            }
         }
-        
+
         /* تأثير السحب */
         .drag-overlay {
             position: fixed;
@@ -327,12 +396,12 @@
             pointer-events: none;
             transition: opacity 0.3s;
         }
-        
+
         .drag-overlay.active {
             opacity: 1;
             pointer-events: all;
         }
-        
+
         .drag-content {
             background: white;
             padding: 30px;
@@ -341,12 +410,45 @@
             max-width: 400px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
-        
+
         .drag-icon {
             font-size: 48px;
             color: var(--lab-purple);
             margin-bottom: 15px;
         }
+
+.btn-delete {
+    background-color: var(--danger);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    transition: all 0.3s;
+    margin-right: 5px;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+
+.btn-delete-patient {
+    background-color: var(--danger);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    margin-right: 5px;
+}
+
+.btn-delete-patient:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+
     </style>
 </head>
 <body>
@@ -357,7 +459,7 @@
                 <div class="d-flex align-items-center">
                     <i class="fas fa-flask fa-3x me-3"></i>
                     <div>
-                        <h1 class="h2 mb-0">مستشفى الحياة</h1>
+                        <h1 class="h2 mb-0">مستشفى النسائية والاطفال التعليمي</h1>
                         <p class="mb-0">نظام إدارة قسم المختبر</p>
                     </div>
                 </div>
@@ -375,13 +477,28 @@
                     </div>
                 </div>
             </div>
+
+            <!-- قائمة الأقسام المخبرية -->
+            <div class="departments-menu mt-3">
+                <h6 class="text-center text-white mb-2">الأقسام المخبرية</h6>
+                <div class="departments-list">
+                    <span class="department-badge badge-blood text-white" data-department="وحده امراض الدم">وحده امراض الدم</span>
+                    <span class="department-badge badge-viruses text-white" data-department="وحده الفايروسات">وحده الفايروسات</span>
+                    <span class="department-badge badge-parasites text-white" data-department="وحده الطفيليات">وحده الطفيليات</span>
+                    <span class="department-badge badge-chemistry text-white" data-department="وحده الكيمياء السريريه">وحده الكيمياء السريريه</span>
+                    <span class="department-badge badge-microbiology text-white" data-department="وحده الأحياء المجهريه">وحده الأحياء المجهريه</span>
+                    <span class="department-badge badge-hormones text-white" data-department="وحده الهرمونات">وحده الهرمونات</span>
+                    <span class="department-badge badge-blood-draw text-white" data-department="وحده سحب الدم">وحده سحب الدم</span>
+                    <span class="department-badge bg-secondary text-white" data-department="الكل">عرض الكل</span>
+                </div>
+            </div>
         </div>
     </header>
 
     <!-- المحتوى الرئيسي -->
     <div class="container my-4">
+        <!-- الإحصائيات -->
         <div class="row">
-            <!-- الإحصائيات -->
             <div class="col-md-3 mb-4">
                 <div class="lab-card stats-card bg-white">
                     <i class="fas fa-vial fa-2x text-purple mb-2"></i>
@@ -412,10 +529,41 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-lg-12">
+        <!-- تبويبات التنقل بين الوضعين -->
+        <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="current-tests-tab" data-bs-toggle="tab" data-bs-target="#current-tests-content"
+                    type="button" role="tab" aria-controls="current-tests-content" aria-selected="true">
+                    الفحوصات الحالية
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="archive-tests-tab" data-bs-toggle="tab" data-bs-target="#archive-tests-content"
+                    type="button" role="tab" aria-controls="archive-tests-content" aria-selected="false">
+                    الأرشيف
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content mt-4" id="mainTabsContent">
+            <!-- الفحوصات الحالية -->
+            <div class="tab-pane fade show active" id="current-tests-content" role="tabpanel" aria-labelledby="current-tests-tab">
                 <div class="lab-card bg-white p-4">
-                    <h3 class="section-title">فحوصات المختبر المطلوبة</h3>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="section-title">فحوصات المختبر المطلوبة</h3>
+                        <div class="department-filter">
+                            <select class="form-select" id="department-filter" style="width: auto;">
+                                <option value="الكل">جميع الأقسام</option>
+                                <option value="وحده امراض الدم">وحده امراض الدم</option>
+                                <option value="وحده الفايروسات">وحده الفايروسات</option>
+                                <option value="وحده الطفيليات">وحده الطفيليات</option>
+                                <option value="وحده الكيمياء السريريه">وحده الكيمياء السريريه</option>
+                                <option value="وحده الأحياء المجهريه">وحده الأحياء المجهريه</option>
+                                <option value="وحده الهرمونات">وحده الهرمونات</option>
+                                <option value="وحده سحب الدم">وحده سحب الدم</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead class="table-light">
@@ -437,6 +585,30 @@
                     </div>
                 </div>
             </div>
+
+            <!-- الأرشيف -->
+            <div class="tab-pane fade" id="archive-tests-content" role="tabpanel" aria-labelledby="archive-tests-tab">
+                <div class="lab-card bg-white p-4">
+                    <h3 class="section-title">الأرشيف - الفحوصات المكتملة</h3>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>اسم المريض</th>
+                                    <th>العمر</th>
+                                    <th>القسم</th>
+                                    <th>نوع الفحص</th>
+                                    <th>تاريخ الإكمال</th>
+                                    <th>عرض النتيجة</th>
+                                </tr>
+                            </thead>
+                            <tbody id="archive-table-body">
+                                <!-- سيتم ملء هذا الجدول من خلال JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -445,11 +617,11 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <h5>مستشفى الحياة - قسم المختبر</h5>
+                    <h5>مستشفى النسائية والاطفال التعليمي - قسم المختبر</h5>
                     <p>خدمات الفحوصات المخبرية الدقيقة</p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <p>© 2023 نظام إدارة المستشفى. جميع الحقوق محفوظة.</p>
+                    <p>© 2025 نظام إدارة المستشفى. جميع الحقوق محفوظة.</p>
                     <p>قسم المختبر - الإصدار 1.0</p>
                 </div>
             </div>
@@ -477,22 +649,22 @@
                                 <input type="text" class="form-control" id="result-test-type" readonly>
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="result-value" class="form-label">نتيجة التحليل</label>
                             <input type="text" class="form-control" id="result-value" required>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="result-unit" class="form-label">الوحدة</label>
                             <input type="text" class="form-control" id="result-unit">
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="result-reference" class="form-label">القيم المرجعية</label>
                             <input type="text" class="form-control" id="result-reference">
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="result-status" class="form-label">حالة النتيجة</label>
                             <select class="form-select" id="result-status" required>
@@ -501,12 +673,12 @@
                                 <option value="critical">حرج</option>
                             </select>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="result-notes" class="form-label">ملاحظات</label>
                             <textarea class="form-control" id="result-notes" rows="3"></textarea>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="result-attachment" class="form-label">إرفاق ملف (اختياري)</label>
                             <input type="file" class="form-control" id="result-attachment">
@@ -532,26 +704,26 @@
                 </div>
                 <div class="modal-body">
                     <div class="result-paper draggable-container" id="result-paper">
-                        <div class="result-stamp">مستشفى الحياة</div>
+                        <div class="result-stamp">مستشفى النسائية والاطفال التعليمي</div>
                         <div class="result-header">
-                            <div class="hospital-logo">مستشفى الحياة</div>
+                            <div class="hospital-logo">مستشفى النسائية والاطفال التعليمي</div>
                             <div class="result-title">تقرير نتيجة التحليل المخبري</div>
                         </div>
-                        
+
                         <div class="result-patient-info">
                             <div><strong>اسم المريض:</strong> <span id="paper-patient-name"></span></div>
                             <div><strong>العمر:</strong> <span id="paper-patient-age"></span></div>
                             <div><strong>رقم العينة:</strong> <span id="paper-sample-id"></span></div>
                             <div><strong>التاريخ:</strong> <span id="paper-date"></span></div>
                         </div>
-                        
+
                         <div class="result-test-info">
                             <h6>معلومات الفحص</h6>
                             <div><strong>نوع الفحص:</strong> <span id="paper-test-type"></span></div>
                             <div><strong>وقت الطلب:</strong> <span id="paper-request-time"></span></div>
                             <div><strong>وقت التسليم:</strong> <span id="paper-delivery-time"></span></div>
                         </div>
-                        
+
                         <div class="result-details">
                             <h6>نتائج التحليل</h6>
                             <table class="result-table">
@@ -569,15 +741,15 @@
                                 </tbody>
                             </table>
                         </div>
-                        
+
                         <div class="result-notes">
                             <h6>ملاحظات</h6>
                             <p id="paper-notes"></p>
                         </div>
-                        
+
                         <div class="result-footer">
                             <div>تم إصدار هذه النتيجة إلكترونياً وتعتبر معتمدة دون الحاجة إلى توقيع</div>
-                            <div>مستشفى الحياة - قسم المختبر - الهاتف: 0123456789</div>
+                            <div>مستشفى النسائية والاطفال التعليمي - قسم المختبر - </div>
                         </div>
                     </div>
                 </div>
@@ -612,60 +784,63 @@
         // تحديث الوقت والتاريخ
         function updateDateTime() {
             const now = new Date();
-            const timeStr = now.toLocaleTimeString('ar-SA');
-            const dateStr = now.toLocaleDateString('ar-SA', {
+            const timeStr = now.toLocaleTimeString('ar-GB');
+            const dateStr = now.toLocaleDateString('ar-GB', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
             });
-            
+
             document.getElementById('current-time').textContent = timeStr;
             document.getElementById('current-date').textContent = dateStr;
         }
-        
+
         setInterval(updateDateTime, 1000);
         updateDateTime();
-        
+
         // تهيئة Firebase
         const firebaseConfig = {
-  apiKey: "AIzaSyDisl7M6cxoTfJiRw-BRblwpjE-ERSsmsc",
-  authDomain: "school-7c742.firebaseapp.com",
-  projectId: "school-7c742",
-  storageBucket: "school-7c742.firebasestorage.app",
-  messagingSenderId: "551670242662",
-  appId: "1:551670242662:web:cd818e4cf8c4c9bda93ca7"
-};
-        
+            apiKey: "AIzaSyDisl7M6cxoTfJiRw-BRblwpjE-ERSsmsc",
+            authDomain: "school-7c742.firebaseapp.com",
+            projectId: "school-7c742",
+            storageBucket: "school-7c742.firebasestorage.app",
+            messagingSenderId: "551670242662",
+            appId: "1:551670242662:web:cd818e4cf8c4c9bda93ca7"
+        };
+
         // تهيئة Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        
+
         // تهيئة المودال
         const testResultModal = new bootstrap.Modal(document.getElementById('testResultModal'));
         const viewResultModal = new bootstrap.Modal(document.getElementById('viewResultModal'));
         const dragOverlay = document.getElementById('drag-overlay');
-        
+
         // متغيرات السحب
         let isDragging = false;
         let dragOffsetX, dragOffsetY;
         let currentDragElement = null;
-        
+
+        // متغيرات التصفية
+        let currentDepartmentFilter = "الكل";
+
         // تهيئة أحداث السحب
         function initDragEvents() {
             const resultPaper = document.getElementById('result-paper');
             const dragResultBtn = document.getElementById('drag-result');
             const exitDragBtn = document.getElementById('exit-drag');
-            
+
             dragResultBtn.addEventListener('click', function() {
                 viewResultModal.hide();
                 startDragging(resultPaper);
             });
-            
+
             exitDragBtn.addEventListener('click', function() {
                 stopDragging();
             });
-            
+
             // منع إغلاق المودال عند السحب
             document.getElementById('viewResultModal').addEventListener('hide.bs.modal', function(e) {
                 if (isDragging) {
@@ -673,7 +848,7 @@
                 }
             });
         }
-        
+
         // بدء السحب
         function startDragging(element) {
             isDragging = true;
@@ -684,26 +859,26 @@
             currentDragElement.style.width = '600px';
             currentDragElement.style.maxWidth = '80%';
             currentDragElement.style.cursor = 'grabbing';
-            
+
             document.body.appendChild(currentDragElement);
             dragOverlay.classList.add('active');
-            
+
             // تحديد موقع العنصر
             const rect = element.getBoundingClientRect();
             currentDragElement.style.left = (window.innerWidth - rect.width) / 2 + 'px';
             currentDragElement.style.top = '100px';
-            
+
             // أحداث السحب
             currentDragElement.addEventListener('mousedown', startDrag);
             document.addEventListener('mousemove', drag);
             document.addEventListener('mouseup', stopDrag);
-            
+
             // أحداث اللمس
             currentDragElement.addEventListener('touchstart', startDragTouch);
             document.addEventListener('touchmove', dragTouch);
             document.addEventListener('touchend', stopDrag);
         }
-        
+
         // إيقاف السحب
         function stopDragging() {
             if (currentDragElement) {
@@ -712,14 +887,14 @@
             }
             dragOverlay.classList.remove('active');
             isDragging = false;
-            
+
             // إزالة الأحداث
             document.removeEventListener('mousemove', drag);
             document.removeEventListener('mouseup', stopDrag);
             document.removeEventListener('touchmove', dragTouch);
             document.removeEventListener('touchend', stopDrag);
         }
-        
+
         // بدء السحب (ماوس)
         function startDrag(e) {
             e.preventDefault();
@@ -728,7 +903,7 @@
             dragOffsetY = e.clientY - rect.top;
             currentDragElement.style.cursor = 'grabbing';
         }
-        
+
         // بدء السحب (لمس)
         function startDragTouch(e) {
             e.preventDefault();
@@ -737,7 +912,7 @@
             dragOffsetX = touch.clientX - rect.left;
             dragOffsetY = touch.clientY - rect.top;
         }
-        
+
         // السحب (ماوس)
         function drag(e) {
             if (!isDragging) return;
@@ -745,7 +920,7 @@
             currentDragElement.style.left = (e.clientX - dragOffsetX) + 'px';
             currentDragElement.style.top = (e.clientY - dragOffsetY) + 'px';
         }
-        
+
         // السحب (لمس)
         function dragTouch(e) {
             if (!isDragging) return;
@@ -754,530 +929,552 @@
             currentDragElement.style.left = (touch.clientX - dragOffsetX) + 'px';
             currentDragElement.style.top = (touch.clientY - dragOffsetY) + 'px';
         }
-        
+
         // إيقاف السحب
         function stopDrag() {
             if (currentDragElement) {
                 currentDragElement.style.cursor = 'grab';
             }
         }
-        
-        // تحميل فحوصات المختبر من Firestore
-        function loadLabTests() {
-            const patientsTable = document.getElementById('patients-table-body');
-            patientsTable.innerHTML = '<tr><td colspan="7" class="text-center">جاري تحميل البيانات...</td></tr>';
-            
-            db.collection('lab_tests').orderBy('timestamp', 'desc').get()
-            .then((querySnapshot) => {
-                patientsTable.innerHTML = '';
-                let totalTests = 0;
-                let pendingTests = 0;
-                let inProgressTests = 0;
-                let completedTests = 0;
-                
-                // تجميع الفحوصات حسب المريض
-                const patientsMap = new Map();
-                
-                querySnapshot.forEach((doc) => {
-                    const test = doc.data();
-                    const testId = doc.id;
-                    totalTests++;
-                    
-                    // تحديث الإحصائيات
-                    if (test.status === 'pending') pendingTests++;
-                    else if (test.status === 'in-progress') inProgressTests++;
-                    else if (test.status === 'completed') completedTests++;
-                    
-                    // تجميع الفحوصات حسب المريض
-                    if (!patientsMap.has(test.patientId)) {
-                        patientsMap.set(test.patientId, {
-                            patientId: test.patientId,
-                            patientName: test.patientName,
-                            patientAge: test.patientAge,
-                            department: test.department,
-                            tests: [],
-                            timestamp: test.timestamp
-                        });
-                    }
-                    
-                    patientsMap.get(test.patientId).tests.push({
-                        id: testId,
-                        type: test.testType,
-                        priority: test.priority,
-                        status: test.status,
-                        notes: test.notes || '',
-                        timestamp: test.timestamp,
-                        result: test.result || null
-                    });
-                });
-                
-                // عرض المرضى وفحوصاتهم
-                patientsMap.forEach((patient, patientId) => {
-                    // ترتيب الفحوصات حسب الوقت (الأحدث أولاً)
-                    patient.tests.sort((a, b) => b.timestamp - a.timestamp);
-                    
-                    // إنشاء صف المريض
-                    const patientRow = document.createElement('tr');
-                    patientRow.className = 'patient-row';
-                    
-                    // تنسيق الوقت
-                    const date = patient.timestamp ? patient.timestamp.toDate() : new Date();
-                    const timeStr = date.toLocaleTimeString('ar-SA');
-                    const dateStr = date.toLocaleDateString('ar-SA');
-                    
-                    patientRow.innerHTML = `
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary toggle-tests" data-patient-id="${patientId}">
-                                <i class="fas fa-chevron-down collapse-icon"></i>
-                            </button>
-                        </td>
-                        <td>${patient.patientName}</td>
-                        <td>${patient.patientAge}</td>
-                        <td>${patient.department}</td>
-                        <td><span class="badge bg-primary">${patient.tests.length}</span></td>
-                        <td>${dateStr} ${timeStr}</td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-info add-test" data-patient-id="${patientId}" data-patient-name="${patient.patientName}" data-patient-age="${patient.patientAge}">
-                                <i class="fas fa-plus"></i> إضافة فحص
-                            </button>
-                        </td>
-                        <td>
-                        <button class="btn btn-sm btn-outline-secondary view-all-results" 
-    data-patient="${patient.patientName}" 
-    data-age="${patient.patientAge}">
-    <i class="fas fa-file-alt"></i> عرض جميع النتائج
-</button>
 
-                        </td>
-                    `;
-                    
-                    patientsTable.appendChild(patientRow);
-                    
-                    // إنشاء صف للفحوصات (مخفي بشكل افتراضي)
-                    const testsRow = document.createElement('tr');
-                    testsRow.className = 'test-row';
-                    const testsCell = document.createElement('td');
-                    testsCell.colSpan = 7;
-                    testsCell.style.padding = '0';
-                    
-                    const testsContainer = document.createElement('div');
-                    testsContainer.id = `tests-${patientId}`;
-                    testsContainer.className = 'collapse';
-                    testsContainer.innerHTML = `
-                        <div class="p-3 bg-light">
-                            <h6 class="mb-3">فحوصات المريض: ${patient.patientName}</h6>
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>نوع الفحص</th>
-                                        <th>الأولوية</th>
-                                        <th>الحالة</th>
-                                        <th>النتيجة</th>
-                                        <th>الوقت</th>
-                                        <th>ملاحظات</th>
-                                        <th>الإجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${patient.tests.map(test => {
-                                        // تنسيق الأولوية
-                                        let priorityBadge = '';
-                                        if (test.priority === 'urgent') {
-                                            priorityBadge = '<span class="badge bg-danger">عاجل</span>';
-                                        } else {
-                                            priorityBadge = '<span class="badge bg-info">عادي</span>';
-                                        }
-                                        
-                                        // تنسيق الحالة
-                                        let statusBadge = '';
-                                        if (test.status === 'pending') {
-                                            statusBadge = '<span class="badge bg-secondary">في الانتظار</span>';
-                                        } else if (test.status === 'in-progress') {
-                                            statusBadge = '<span class="badge bg-primary">قيد التنفيذ</span>';
-                                        } else {
-                                            statusBadge = '<span class="badge bg-success">مكتمل</span>';
-                                        }
-                                        
-                                        // تنسيق النتيجة
-                                        let resultBadge = '';
-                                        if (test.result) {
-                                            if (test.result.status === 'normal') {
-                                                resultBadge = `<span class="result-normal">طبيعي</span>`;
-                                            } else if (test.result.status === 'abnormal') {
-                                                resultBadge = `<span class="result-abnormal">غير طبيعي</span>`;
-                                            } else if (test.result.status === 'critical') {
-                                                resultBadge = `<span class="result-abnormal">حرج</span>`;
-                                            }
-                                        } else {
-                                            resultBadge = '<span class="result-pending">بانتظار النتيجة</span>';
-                                        }
-                                        
-                                        // تنسيق الوقت
-                                        const testDate = test.timestamp ? test.timestamp.toDate() : new Date();
-                                        const testTimeStr = testDate.toLocaleTimeString('ar-SA');
-                                        
-                                        return `
-                                            <tr class="${test.status === 'pending' ? 'test-pending' : test.status === 'completed' ? 'test-completed' : test.priority === 'urgent' ? 'test-urgent' : ''}">
-                                                <td>${test.type}</td>
-                                                <td>${priorityBadge}</td>
-                                                <td>${statusBadge}</td>
-                                                <td>${resultBadge}</td>
-                                                <td>${testTimeStr}</td>
-                                                <td>${test.notes || '-'}</td>
-                                                <td>
-                                                    ${test.status !== 'completed' ? `
-                                                    <button class="btn btn-sm btn-outline-primary update-test" data-id="${test.id}" data-status="${test.status}">
-                                                        <i class="fas fa-edit"></i> تحديث
-                                                    </button>
-                                                    ` : ''}
-                                                    ${test.status === 'completed' && !test.result ? `
-                                                    <button class="btn btn-sm btn-outline-success add-result" data-id="${test.id}" data-patient="${patient.patientName}" data-type="${test.type}" data-age="${patient.patientAge}">
-                                                        <i class="fas fa-file-medical"></i> نتيجة
-                                                    </button>
-                                                    ` : ''}
-                                                    ${test.result ? `
-                                                    <button class="btn btn-sm btn-outline-info view-result" data-id="${test.id}" data-patient="${patient.patientName}" data-type="${test.type}" data-age="${patient.patientAge}">
-                                                        <i class="fas fa-eye"></i> عرض
-                                                    </button>
-                                                    ` : ''}
-                                                    <button class="btn btn-sm btn-outline-danger delete-test" data-id="${test.id}">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-outline-secondary view-all-results" 
-    data-patient="${patient.patientName}" 
-    data-age="${patient.patientAge}">
-    <i class="fas fa-file-alt"></i> عرض جميع النتائج
-</button>
-                                                </td>
-                                            </tr>
-                                        `;
-                                    }).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    `;
-                    
-                    testsCell.appendChild(testsContainer);
-                    testsRow.appendChild(testsCell);
-                    patientsTable.appendChild(testsRow);
-                });
-                
-                // تحديث الإحصائيات
-                document.getElementById('total-tests').textContent = totalTests;
-                document.getElementById('pending-tests').textContent = pendingTests;
-                document.getElementById('in-progress-tests').textContent = inProgressTests;
-                document.getElementById('completed-tests').textContent = completedTests;
-                
-                // إضافة معالجات الأحداث للأزرار
-                document.querySelectorAll('.toggle-tests').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const patientId = this.getAttribute('data-patient-id');
-                        const testsContainer = document.getElementById(`tests-${patientId}`);
-                        const icon = this.querySelector('.collapse-icon');
-                        
-                        // تبديل حالة العرض
-                        if (testsContainer.classList.contains('show')) {
-                            testsContainer.classList.remove('show');
-                            icon.classList.add('collapsed');
-                        } else {
-                            testsContainer.classList.add('show');
-                            icon.classList.remove('collapsed');
-                        }
-                    });
-                });
-                
-               
-                 // إضافة معالجات الأحداث لأزرار عرض جميع النتائج
-document.querySelectorAll('.view-all-results').forEach(button => {
-    button.addEventListener('click', function() {
-        const patientName = this.getAttribute('data-patient');
-        const patientAge = this.getAttribute('data-age');
-
-        db.collection('lab_tests')
-            .where("patientName", "==", patientName)
-            .get()
-            .then((querySnapshot) => {
-                // تعبئة بيانات المريض
-                document.getElementById('paper-patient-name').textContent = patientName;
-                document.getElementById('paper-patient-age').textContent = patientAge;
-                document.getElementById('paper-sample-id').textContent = "---";
-                document.getElementById('paper-date').textContent = new Date().toLocaleDateString('ar-SA');
-
-                const resultTable = document.getElementById('paper-result-table');
-                resultTable.innerHTML = '';
-
-                querySnapshot.forEach((doc) => {
-                    const test = doc.data();
-
-                    if (test.result) {
-                        let statusText = '';
-                        let statusClass = '';
-                        if (test.result.status === 'normal') {
-                            statusText = 'طبيعي';
-                            statusClass = 'result-normal';
-                        } else if (test.result.status === 'abnormal') {
-                            statusText = 'غير طبيعي';
-                            statusClass = 'result-abnormal';
-                        } else if (test.result.status === 'critical') {
-                            statusText = 'حرج';
-                            statusClass = 'result-abnormal';
-                        }
-
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${test.testType}</td>
-                            <td>${test.result.value}</td>
-                            <td>${test.result.unit || '-'}</td>
-                            <td>${test.result.reference || '-'}</td>
-                            <td class="${statusClass}">${statusText}</td>
-                        `;
-                        resultTable.appendChild(row);
-                    }
-                });
-
-                // ملاحظات عامة
-                document.getElementById('paper-notes').textContent = 
-                    "تم عرض جميع نتائج الفحوصات الخاصة بالمريض.";
-
-                // عرض المودال
-                viewResultModal.show();
-            })
-            .catch((error) => {
-                console.error("Error getting all patient results:", error);
-                alert('حدث خطأ أثناء جلب جميع نتائج الفحوصات');
-            });
-    });
-});
-
-
-
-                document.querySelectorAll('.update-test').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const testId = this.getAttribute('data-id');
-                        const currentStatus = this.getAttribute('data-status');
-                        
-                        let newStatus;
-                        if (currentStatus === 'pending') newStatus = 'in-progress';
-                        else if (currentStatus === 'in-progress') newStatus = 'completed';
-                        
-                        db.collection('lab_tests').doc(testId).update({
-                            status: newStatus
-                        })
-                        .then(() => {
-                            alert('تم تحديث حالة الفحص بنجاح!');
-                            loadLabTests();
-                        })
-                        .catch((error) => {
-                            console.error("Error updating document: ", error);
-                            alert('حدث خطأ أثناء تحديث حالة الفحص. يرجى المحاولة مرة أخرى.');
-                        });
-                    });
-                });
-                
-                document.querySelectorAll('.delete-test').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const testId = this.getAttribute('data-id');
-                        
-                        if (confirm('هل أنت متأكد من حذف هذا الفحص؟')) {
-                            db.collection('lab_tests').doc(testId).delete()
-                            .then(() => {
-                                alert('تم حذف الفحص بنجاح!');
-                                loadLabTests();
-                            })
-                            .catch((error) => {
-                                console.error("Error deleting document: ", error);
-                                alert('حدث خطأ أثناء حذف الفحص. يرجى المحاولة مرة أخرى.');
-                            });
-                        }
-                    });
-                });
-                
-                document.querySelectorAll('.add-test').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const patientId = this.getAttribute('data-patient-id');
-                        const patientName = this.getAttribute('data-patient-name');
-                        const patientAge = this.getAttribute('data-patient-age');
-                        
-                        const testType = prompt('أدخل نوع الفحص الجديد:');
-                        if (testType) {
-                            const priority = confirm('هل هذا الفحص عاجل؟ (موافق = عاجل، إلغاء = عادي)') ? 'urgent' : 'normal';
-                            const notes = prompt('أدخل ملاحظات إضافية (اختياري):') || '';
-                            
-                            db.collection('lab_tests').add({
-                                patientId: patientId,
-                                patientName: patientName,
-                                patientAge: patientAge,
-                                department: 'الطوارئ',
-                                testType: testType,
-                                priority: priority,
-                                notes: notes,
-                                status: 'pending',
-                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                            })
-                            .then(() => {
-                                alert('تم إضافة الفحص بنجاح!');
-                                loadLabTests();
-                            })
-                            .catch((error) => {
-                                console.error("Error adding document: ", error);
-                                alert('حدث خطأ أثناء إضافة الفحص. يرجى المحاولة مرة أخرى.');
-                            });
-                        }
-                    });
-                });
-                
-                // إضافة معالجات الأحداث لأزرار إضافة النتائج
-                document.querySelectorAll('.add-result').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const testId = this.getAttribute('data-id');
-                        const patientName = this.getAttribute('data-patient');
-                        const testType = this.getAttribute('data-type');
-                        
-                        // تعبئة بيانات الفحص في النموذج
-                        document.getElementById('result-test-id').value = testId;
-                        document.getElementById('result-patient-name').value = patientName;
-                        document.getElementById('result-test-type').value = testType;
-                        
-                        // إظهار المودال
-                        testResultModal.show();
-                    });
-                });
-                
-                // إضافة معالجات الأحداث لأزرار عرض النتائج
-                document.querySelectorAll('.view-result').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const testId = this.getAttribute('data-id');
-                        const patientName = this.getAttribute('data-patient');
-                        const patientAge = this.getAttribute('data-age');
-                        const testType = this.getAttribute('data-type');
-                        
-                        // جلب نتيجة الفحص من Firestore
-                        db.collection('lab_tests').doc(testId).get()
-                        .then((doc) => {
-                            if (doc.exists) {
-                                const test = doc.data();
-                                
-                                // تعبئة بيانات النتيجة في نموذج العرض
-                                document.getElementById('paper-patient-name').textContent = patientName;
-                                document.getElementById('paper-patient-age').textContent = patientAge;
-                                document.getElementById('paper-sample-id').textContent = testId.substring(0, 8).toUpperCase();
-                                document.getElementById('paper-date').textContent = new Date().toLocaleDateString('ar-SA');
-                                document.getElementById('paper-test-type').textContent = testType;
-                                
-                                const requestDate = test.timestamp ? test.timestamp.toDate() : new Date();
-                                document.getElementById('paper-request-time').textContent = requestDate.toLocaleString('ar-SA');
-                                
-                                const deliveryDate = test.result && test.result.timestamp ? test.result.timestamp.toDate() : new Date();
-                                document.getElementById('paper-delivery-time').textContent = deliveryDate.toLocaleString('ar-SA');
-                                
-                                // تعبئة جدول النتائج
-                                const resultTable = document.getElementById('paper-result-table');
-                                resultTable.innerHTML = '';
-                                
-                                if (test.result) {
-                                    const row = document.createElement('tr');
-                                    
-                                    // تنسيق حالة النتيجة
-                                    let statusText = '';
-                                    let statusClass = '';
-                                    if (test.result.status === 'normal') {
-                                        statusText = 'طبيعي';
-                                        statusClass = 'result-normal';
-                                    } else if (test.result.status === 'abnormal') {
-                                        statusText = 'غير طبيعي';
-                                        statusClass = 'result-abnormal';
-                                    } else if (test.result.status === 'critical') {
-                                        statusText = 'حرج';
-                                        statusClass = 'result-abnormal';
-                                    }
-                                    
-                                    row.innerHTML = `
-                                        <td>${testType}</td>
-                                        <td>${test.result.value}</td>
-                                        <td>${test.result.unit || '-'}</td>
-                                        <td>${test.result.reference || '-'}</td>
-                                        <td class="${statusClass}">${statusText}</td>
-                                    `;
-                                    resultTable.appendChild(row);
-                                }
-                                
-                                // تعبئة الملاحظات
-                                document.getElementById('paper-notes').textContent = test.result && test.result.notes ? test.result.notes : 'لا توجد ملاحظات';
-                                
-                                // إظهار مودال العرض
-                                viewResultModal.show();
-                            }
-                        })
-                        .catch((error) => {
-                            console.error("Error getting document:", error);
-                            alert('حدث خطأ أثناء جلب نتيجة الفحص');
-                        });
-                    });
-                });
-                
-                if (patientsMap.size === 0) {
-                    patientsTable.innerHTML = '<tr><td colspan="7" class="text-center">لا توجد فحوصات مطلوبة</td></tr>';
-                }
-            })
-            .catch((error) => {
-                console.error("Error getting documents: ", error);
-                patientsTable.innerHTML = '<tr><td colspan="7" class="text-center">حدث خطأ في تحميل البيانات</td></tr>';
-            });
-        }
-        
-        // إرسال نتيجة الفحص
-        document.getElementById('submit-test-result').addEventListener('click', function() {
-            const testId = document.getElementById('result-test-id').value;
-            const value = document.getElementById('result-value').value;
-            const unit = document.getElementById('result-unit').value;
-            const reference = document.getElementById('result-reference').value;
-            const status = document.getElementById('result-status').value;
-            const notes = document.getElementById('result-notes').value;
-            
-            if (!value) {
-                alert('يرجى إدخال نتيجة التحليل');
-                return;
-            }
-            
-            // تحديث الفحص بإضافة النتيجة
-            db.collection('lab_tests').doc(testId).update({
-                result: {
-                    value: value,
-                    unit: unit,
-                    reference: reference,
-                    status: status,
-                    notes: notes,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                }
-            })
+// دوال الحذف
+function deleteTest(testId) {
+    if (confirm('هل أنت متأكد من حذف هذا الفحص؟')) {
+        db.collection('lab_tests').doc(testId).delete()
             .then(() => {
-                alert('تم حفظ نتيجة التحليل بنجاح!');
-                testResultModal.hide();
+                alert('تم حذف الفحص بنجاح');
                 loadLabTests();
             })
             .catch((error) => {
-                console.error("Error updating document: ", error);
-                alert('حدث خطأ أثناء حفظ نتيجة التحليل. يرجى المحاولة مرة أخرى.');
+                console.error("Error deleting test: ", error);
+                alert('حدث خطأ أثناء حذف الفحص');
             });
+    }
+}
+
+function deletePatientTests(patientId) {
+    if (confirm('هل أنت متأكد من حذف جميع فحوصات هذا المريض؟')) {
+        db.collection('lab_tests')
+            .where('patientId', '==', patientId)
+            .get()
+            .then((querySnapshot) => {
+                const batch = db.batch();
+                querySnapshot.forEach((doc) => {
+                    batch.delete(doc.ref);
+                });
+                return batch.commit();
+            })
+            .then(() => {
+                alert('تم حذف جميع فحوصات المريض بنجاح');
+                loadLabTests();
+            })
+            .catch((error) => {
+                console.error("Error deleting patient tests: ", error);
+                alert('حدث خطأ أثناء حذف فحوصات المريض');
+            });
+    }
+}
+
+function deleteArchivedTest(testId) {
+    if (confirm('هل أنت متأكد من حذف هذا الفحص المؤرشف؟')) {
+        db.collection('lab_tests').doc(testId).delete()
+            .then(() => {
+                alert('تم حذف الفحص المؤرشف بنجاح');
+                loadLabTests();
+            })
+            .catch((error) => {
+                console.error("Error deleting archived test: ", error);
+                alert('حدث خطأ أثناء حذف الفحص المؤرشف');
+            });
+    }
+}
+
+function deletePatientFully(patientId, patientName) {
+    if (confirm(`هل أنت متأكد من حذف المريض ${patientName} بشكل كامل مع جميع فحوصاته؟ هذا الإجراء لا يمكن التراجع عنه.`)) {
+        // أولاً: حذف جميع فحوصات المريض
+        db.collection('lab_tests')
+            .where('patientId', '==', patientId)
+            .get()
+            .then((querySnapshot) => {
+                const batch = db.batch();
+                querySnapshot.forEach((doc) => {
+                    batch.delete(doc.ref);
+                });
+                return batch.commit();
+            })
+            .then(() => {
+                // ثانياً: حذف المريض من مجموعة patients
+                return db.collection('patients').doc(patientId).delete();
+            })
+            .then(() => {
+                alert('تم حذف المريض و جميع فحوصاته بنجاح');
+                loadLabTests();
+            })
+            .catch((error) => {
+                console.error("Error deleting patient fully: ", error);
+                alert('حدث خطأ أثناء حذف المريض');
+            });
+    }
+}
+
+        // تحميل فحوصات المختبر من Firestore
+        function loadLabTests() {
+            const patientsTable = document.getElementById('patients-table-body');
+            const archiveTable = document.getElementById('archive-table-body');
+            patientsTable.innerHTML = '<tr><td colspan="8" class="text-center">جاري تحميل البيانات...</td></tr>';
+            archiveTable.innerHTML = '<tr><td colspan="6" class="text-center">جاري تحميل البيانات...</td></tr>';
+
+            db.collection('lab_tests').orderBy('timestamp', 'desc').get()
+                .then((querySnapshot) => {
+                    patientsTable.innerHTML = '';
+                    archiveTable.innerHTML = '';
+                    let totalTests = 0;
+                    let pendingTests = 0;
+                    let inProgressTests = 0;
+                    let completedTests = 0;
+
+                    // تجميع الفحوصات حسب المريض
+                    const patientsMap = new Map();
+                    const archiveMap = new Map();
+
+                    querySnapshot.forEach((doc) => {
+                        const test = doc.data();
+                        const testId = doc.id;
+
+                        // تطبيق التصفية حسب القسم
+                        if (currentDepartmentFilter !== "الكل" && test.department !== currentDepartmentFilter) {
+                            return;
+                        }
+
+                        totalTests++;
+
+                        // تحديث الإحصائيات
+                        if (test.status === 'pending') pendingTests++;
+                        else if (test.status === 'in-progress') inProgressTests++;
+                        else if (test.status === 'completed') completedTests++;
+
+                        // التحقق من حالة الأرشيف
+                        if (test.archived === true) {
+                            // الأرشيف
+                            if (!archiveMap.has(test.patientId)) {
+                                archiveMap.set(test.patientId, {
+                                    patientName: test.patientName,
+                                    patientAge: test.patientAge,
+                                    tests: []
+                                });
+                            }
+                            archiveMap.get(test.patientId).tests.push({
+                                id: testId,
+                                type: test.testType,
+                                department: test.department,
+                                status: test.status,
+                                timestamp: test.timestamp,
+                                resultTimestamp: test.resultTimestamp || test.timestamp,
+                                result: test.result
+                            });
+                        } else {
+                            // الفحوصات الحالية
+                            if (!patientsMap.has(test.patientId)) {
+                                patientsMap.set(test.patientId, {
+                                    patientName: test.patientName,
+                                    patientAge: test.patientAge,
+                                    tests: []
+                                });
+                            }
+                            patientsMap.get(test.patientId).tests.push({
+                                id: testId,
+                                type: test.testType,
+                                department: test.department,
+                                status: test.status,
+                                timestamp: test.timestamp,
+                                result: test.result
+                            });
+                        }
+                    });
+
+                    // تحديث الإحصائيات
+                    document.getElementById('total-tests').textContent = totalTests;
+                    document.getElementById('pending-tests').textContent = pendingTests;
+                    document.getElementById('in-progress-tests').textContent = inProgressTests;
+                    document.getElementById('completed-tests').textContent = completedTests;
+
+                    // عرض الفحوصات الحالية
+                    if (patientsMap.size === 0) {
+                        patientsTable.innerHTML = '<tr><td colspan="8" class="text-center">لا توجد فحوصات حالية</td></tr>';
+                    } else {
+                        patientsMap.forEach((patient, patientId) => {
+                            // صف المريض
+                            const patientRow = document.createElement('tr');
+                            patientRow.className = 'patient-row';
+
+                            const testsCount = patient.tests.length;
+                            const firstTest = patient.tests[0];
+
+                            patientRow.innerHTML = `
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary toggle-tests" data-patient-id="${patientId}">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </td>
+                                <td>${patient.patientName}</td>
+                                <td>${patient.patientAge}</td>
+                                <td><span class="department-${getDepartmentClass(firstTest.department)}">${firstTest.department}</span></td>
+                                <td>${testsCount}</td>
+                                <td>${formatDate(firstTest.timestamp)}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-lab add-test" data-patient-id="${patientId}" data-patient-name="${patient.patientName}">
+                                        <i class="fas fa-plus"></i> إضافة فحص
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-info view-results" data-patient-id="${patientId}">
+                                        <i class="fas fa-eye"></i> عرض النتائج
+                                    </button>
+                                    <button class="btn btn-sm btn-delete delete-patient" data-patient-id="${patientId}">
+                                        <i class="fas fa-trash"></i> حذف الكل
+                                   </button>
+                                </td>
+                            `;
+
+                            patientsTable.appendChild(patientRow);
+
+                            // صفوف الفحوصات
+                            patient.tests.forEach(test => {
+                                const testRow = document.createElement('tr');
+                                testRow.className = 'test-row collapse';
+                                testRow.id = `test-${test.id}`;
+
+                                let statusBadge = '';
+                                if (test.status === 'pending') {
+                                    statusBadge = '<span class="badge bg-warning">قيد الانتظار</span>';
+                                } else if (test.status === 'in-progress') {
+                                    statusBadge = '<span class="badge bg-primary">قيد التنفيذ</span>';
+                                } else if (test.status === 'completed') {
+                                    statusBadge = '<span class="badge bg-success">مكتمل</span>';
+                                }
+
+                                testRow.innerHTML = `
+                                    <td></td>
+                                    <td>${test.type}</td>
+                                    <td></td>
+                                    <td><span class="department-${getDepartmentClass(test.department)}">${test.department}</span></td>
+                                    <td></td>
+                                    <td>${formatDate(test.timestamp)}</td>
+                                    <td>
+                                        ${test.status !== 'completed' ? `
+                                        <button class="btn btn-sm btn-outline-primary add-result" data-test-id="${test.id}" data-test-type="${test.type}" data-patient-name="${patient.patientName}">
+                                            <i class="fas fa-vial"></i> إضافة نتيجة
+                                        </button>
+                                        <button class="btn btn-sm btn-delete delete-test" data-test-id="${test.id}">
+                                            <i class="fas fa-trash"></i> حذف
+                                        </button>
+                                        ` : `
+                                        <button class="btn btn-sm btn-outline-secondary" disabled>
+                                            <i class="fas fa-check"></i> مكتمل
+                                        </button>
+                                        <button class="btn btn-sm btn-delete delete-test" data-test-id="${test.id}">
+                                        <i class="fas fa-trash"></i> حذف
+                                        </button>
+                                        `}
+                                    </td>
+                                    <td>
+                                        ${test.status === 'completed' ? `
+                                        <button class="btn btn-sm btn-outline-success view-result" data-test-id="${test.id}">
+                                            <i class="fas fa-eye"></i> عرض النتيجة
+                                        </button>
+                                        ` : statusBadge}
+                                    </td>
+                                `;
+
+                                patientsTable.appendChild(testRow);
+                            });
+                        });
+                    }
+
+                    // عرض الأرشيف
+                    if (archiveMap.size === 0) {
+                        archiveTable.innerHTML = '<tr><td colspan="6" class="text-center">لا توجد فحوصات مؤرشفة</td></tr>';
+                    } else {
+                        archiveMap.forEach((patient, patientId) => {
+                            patient.tests.forEach(test => {
+                                const archiveRow = document.createElement('tr');
+                                archiveRow.innerHTML = `
+                                    <td>${patient.patientName}</td>
+                                    <td>${patient.patientAge}</td>
+                                    <td><span class="department-${getDepartmentClass(test.department)}">${test.department}</span></td>
+                                    <td>${test.type}</td>
+                                    <td>${formatDate(test.resultTimestamp)}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-success view-result" data-test-id="${test.id}">
+                                            <i class="fas fa-eye"></i> عرض النتيجة
+                                        </button>
+                                        <button class="btn btn-sm btn-delete delete-archived" data-test-id="${test.id}">
+                                        <i class="fas fa-trash"></i> حذف
+                                        </button>
+                                    </td>
+                                `;
+                                archiveTable.appendChild(archiveRow);
+                            });
+                        });
+                    }
+
+                    
+                    // إضافة أحداث الأزرار
+                    document.querySelectorAll('.toggle-tests').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const patientId = this.getAttribute('data-patient-id');
+                            const icon = this.querySelector('i');
+
+                            // تبديل أيقونة السهم
+                            if (icon.classList.contains('fa-chevron-down')) {
+                                icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+                            } else {
+                                icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+                            }
+
+                            // تبديل عرض الفحوصات
+                            document.querySelectorAll('.test-row').forEach(row => {
+                                if (row.id.startsWith(`test-`)) {
+                                    // هذا تبسيط للكود، في التطبيق الفعلي يجب تحديد الفحوصات الخاصة بكل مريض
+                                    row.classList.toggle('collapse');
+                                }
+                            });
+                        });
+                    });
+
+                    document.querySelectorAll('.add-result').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const testId = this.getAttribute('data-test-id');
+                            const testType = this.getAttribute('data-test-type');
+                            const patientName = this.getAttribute('data-patient-name');
+
+                            document.getElementById('result-test-id').value = testId;
+                            document.getElementById('result-patient-name').value = patientName;
+                            document.getElementById('result-test-type').value = testType;
+
+                            testResultModal.show();
+                        });
+                    });
+
+                    document.querySelectorAll('.view-result').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const testId = this.getAttribute('data-test-id');
+                            viewTestResult(testId);
+                        });
+                    });
+
+                    document.querySelectorAll('.add-test').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const patientId = this.getAttribute('data-patient-id');
+                            const patientName = this.getAttribute('data-patient-name');
+                            alert(`سيتم إضافة فحص جديد للمريض: ${patientName}`);
+                            // في التطبيق الفعلي، افتح نموذج إضافة فحص جديد
+                        });
+                    });
+
+                    document.querySelectorAll('.view-results').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const patientId = this.getAttribute('data-patient-id');
+                            alert(`عرض جميع نتائج المريض (${patientId})`);
+                            // في التطبيق الفعلي، اعرض جميع نتائج المريض
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error loading lab tests: ", error);
+                    document.getElementById('patients-table-body').innerHTML = '<tr><td colspan="8" class="text-center text-danger">حدث خطأ في تحميل البيانات</td></tr>';
+                    document.getElementById('archive-table-body').innerHTML = '<tr><td colspan="6" class="text-center text-danger">حدث خطأ في تحميل البيانات</td></tr>';
+                });
+
+// مستمع لأزرار حذف الفحوصات الفردية
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('delete-test')) {
+        const testId = e.target.getAttribute('data-test-id');
+        deleteTest(testId);
+    }
+    
+    if (e.target.classList.contains('delete-patient')) {
+        const patientId = e.target.getAttribute('data-patient-id');
+        deletePatientTests(patientId);
+    }
+    
+    if (e.target.classList.contains('delete-archived')) {
+        const testId = e.target.getAttribute('data-test-id');
+        deleteArchivedTest(testId);
+    }
+
+});
+
+        }
+
+        // الحصول على كلاس CSS للقسم
+        function getDepartmentClass(department) {
+            const departmentMap = {
+                "وحده امراض الدم": "blood",
+                "وحده الفايروسات": "viruses",
+                "وحده الطفيليات": "parasites",
+                "وحده الكيمياء السريريه": "chemistry",
+                "وحده الأحياء المجهريه": "microbiology",
+                "وحده الهرمونات": "hormones",
+                "وحده سحب الدم": "blood-draw"
+            };
+
+            return departmentMap[department] || "archive";
+        }
+
+        // تنسيق التاريخ
+        function formatDate(timestamp) {
+            if (!timestamp) return '--/--/----';
+
+            const date = timestamp.toDate();
+            return date.toLocaleDateString('ar-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // عرض نتيجة الفحص
+        function viewTestResult(testId) {
+            db.collection('lab_tests').doc(testId).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        const test = doc.data();
+
+                        // ملء نموذج النتيجة
+                        document.getElementById('paper-patient-name').textContent = test.patientName;
+                        document.getElementById('paper-patient-age').textContent = test.patientAge;
+                        document.getElementById('paper-sample-id').textContent = testId.substring(0, 8);
+                        document.getElementById('paper-date').textContent = formatDate(test.resultTimestamp || test.timestamp);
+                        document.getElementById('paper-test-type').textContent = test.testType;
+                        document.getElementById('paper-request-time').textContent = formatDate(test.timestamp);
+                        document.getElementById('paper-delivery-time').textContent = test.resultTimestamp ? formatDate(test.resultTimestamp) : '--/--/---- --:--';
+
+                        // ملء جدول النتائج
+                        const resultTable = document.getElementById('paper-result-table');
+                        resultTable.innerHTML = '';
+
+                        if (test.result) {
+                            const row = document.createElement('tr');
+
+                            let statusClass = '';
+                            let statusText = '';
+
+                            if (test.result.status === 'normal') {
+                                statusClass = 'result-normal';
+                                statusText = 'طبيعي';
+                            } else if (test.result.status === 'abnormal') {
+                                statusClass = 'result-abnormal';
+                                statusText = 'غير طبيعي';
+                            } else if (test.result.status === 'critical') {
+                                statusClass = 'result-critical';
+                                statusText = 'حرج';
+                            }
+
+                            row.innerHTML = `
+                                <td>${test.testType}</td>
+                                <td>${test.result.value}</td>
+                                <td>${test.result.unit || '--'}</td>
+                                <td>${test.result.reference || '--'}</td>
+                                <td class="${statusClass}">${statusText}</td>
+                            `;
+
+                            resultTable.appendChild(row);
+                        }
+
+                        // ملء الملاحظات
+                        document.getElementById('paper-notes').textContent = test.result ? (test.result.notes || 'لا توجد ملاحظات') : 'لا توجد نتائج';
+
+                        viewResultModal.show();
+                    } else {
+                        alert('لم يتم العثور على نتيجة الفحص');
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error loading test result: ", error);
+                    alert('حدث خطأ في تحميل نتيجة الفحص');
+                });
+        }
+
+        // إرسال نتيجة الفحص
+        document.getElementById('submit-test-result').addEventListener('click', function() {
+            const testId = document.getElementById('result-test-id').value;
+            const resultValue = document.getElementById('result-value').value;
+            const resultUnit = document.getElementById('result-unit').value;
+            const resultReference = document.getElementById('result-reference').value;
+            const resultStatus = document.getElementById('result-status').value;
+            const resultNotes = document.getElementById('result-notes').value;
+
+            if (!resultValue) {
+                alert('يرجى إدخال نتيجة التحليل');
+                return;
+            }
+
+            const resultData = {
+                value: resultValue,
+                unit: resultUnit,
+                reference: resultReference,
+                status: resultStatus,
+                notes: resultNotes,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            // تحديث نتيجة الفحص في Firestore مع الأرشيف
+            db.collection('lab_tests').doc(testId).update({
+                result: resultData,
+                status: 'completed',
+                archived: true, // <-- أرشفة تلقائية
+                resultTimestamp: firebase.firestore.FieldValue.serverTimestamp()
+            })
+                .then(() => {
+                    alert('تم حفظ نتيجة التحليل بنجاح');
+                    testResultModal.hide();
+                    loadLabTests(); // إعادة تحميل الفحوصات
+                })
+                .catch((error) => {
+                    console.error("Error saving test result: ", error);
+                    alert('حدث خطأ في حفظ نتيجة التحليل');
+                });
         });
-        
+
         // طباعة النتيجة
         document.getElementById('print-result').addEventListener('click', function() {
-            const printContent = document.getElementById('result-paper').innerHTML;
+            const resultContent = document.getElementById('result-paper').innerHTML;
             const originalContent = document.body.innerHTML;
-            
-            document.body.innerHTML = printContent;
+
+            document.body.innerHTML = resultContent;
             window.print();
             document.body.innerHTML = originalContent;
-            
-            // إعادة تحميل الصفحة بعد الطباعة
+
+            // إعادة تحميل الصفحة للعودة إلى الحالة الطبيعية
             location.reload();
         });
-        
-        // تحميل البيانات عند فتح الصفحة
-        document.addEventListener('DOMContentLoaded', function() {
+
+        // تصفية حسب القسم
+        document.getElementById('department-filter').addEventListener('change', function() {
+            currentDepartmentFilter = this.value;
             loadLabTests();
+        });
+
+        // إضافة أحداث لروابط الأقسام
+        document.querySelectorAll('.department-badge').forEach(badge => {
+            badge.addEventListener('click', function() {
+                const department = this.getAttribute('data-department');
+                document.getElementById('department-filter').value = department;
+                currentDepartmentFilter = department;
+                loadLabTests();
+            });
+        });
+
+        // أحداث التبويبات
+        document.getElementById('archive-tests-tab').addEventListener('shown.bs.tab', loadLabTests);
+
+        // تهيئة التطبيق
+        document.addEventListener('DOMContentLoaded', function() {
             initDragEvents();
+            loadLabTests();
         });
     </script>
 </body>
