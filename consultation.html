@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة مستشفى - قسم الطوارئ</title>
+    <title>نظام إدارة مستشفى - قسم الاستشارية</title>
     <!-- ربط Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- ربط خطوط Google Fonts -->
@@ -25,9 +25,9 @@
             --dark: #212529;
             --hospital-blue: #1a75ff;
             --hospital-green: #2ecc71;
-            --lab-purple: #9b59b6;
-            --women-department: #e83e8c;
-            --children-department: #20c997;
+            --consultation-primary: #2c3e50;
+            --consultation-children: #20c997;
+            --consultation-women: #e83e8c;
             --sidebar-width: 250px;
             --sidebar-collapsed-width: 70px;
         }
@@ -46,7 +46,7 @@
             right: 0;
             height: 100vh;
             width: var(--sidebar-width);
-            background: linear-gradient(135deg, #1a75ff, #0056b3);
+            background: linear-gradient(135deg, #2c3e50, #3498db);
             color: white;
             transition: width 0.3s;
             z-index: 1000;
@@ -130,8 +130,9 @@
             margin-right: var(--sidebar-collapsed-width);
         }
         
+        /* تعديلات على الهيدر الأصلي */
         .hospital-header {
-            background: linear-gradient(135deg, var(--hospital-blue), #0056b3);
+            background: linear-gradient(135deg, var(--consultation-primary), #3e5c79);
             color: white;
             padding: 20px 0;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -143,14 +144,15 @@
             display: none;
         }
         
-        .emergency-card {
+        /* باقي الأنماط الأصلية */
+        .consultation-card {
             border: none;
             border-radius: 12px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
             transition: transform 0.3s, box-shadow 0.3s;
         }
         
-        .emergency-card:hover {
+        .consultation-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
         }
@@ -172,8 +174,8 @@
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
         }
         
-        .btn-hospital {
-            background-color: var(--hospital-blue);
+        .btn-consultation {
+            background-color: var(--consultation-primary);
             color: white;
             border: none;
             padding: 10px 20px;
@@ -182,8 +184,8 @@
             transition: all 0.3s;
         }
         
-        .btn-hospital:hover {
-            background-color: #0056b3;
+        .btn-consultation:hover {
+            background-color: #5a36a9;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
@@ -197,8 +199,8 @@
         }
         
         .nav-tabs .nav-link.active {
-            color: var(--hospital-blue);
-            border-bottom: 3px solid var(--hospital-blue);
+            color: var(--consultation-primary);
+            border-bottom: 3px solid var(--consultation-primary);
             background: transparent;
         }
         
@@ -209,8 +211,8 @@
         }
         
         .form-control:focus, .form-select:focus {
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);
-            border-color: var(--hospital-blue);
+            box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.2);
+            border-color: var(--consultation-primary);
         }
         
         .section-title {
@@ -227,73 +229,10 @@
             right: 0;
             width: 60px;
             height: 4px;
-            background: var(--hospital-blue);
+            background: var(--consultation-primary);
             border-radius: 2px;
         }
         
-        .priority-high {
-            border-right: 4px solid var(--danger);
-        }
-        
-        .priority-medium {
-            border-right: 4px solid var(--warning);
-        }
-        
-        .priority-low {
-            border-right: 4px solid var(--success);
-        }
-        
-        /* نمط المودال */
-        .modal-content {
-            border-radius: 12px;
-        }
-        
-        .modal-header {
-            background: linear-gradient(135deg, var(--hospital-blue), #0056b3);
-            color: white;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-        }
-        
-        /* أنماط جديدة لنتائج الفحوصات */
-        .test-results {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
-        }
-        
-        .test-result-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .test-result-item:last-child {
-            border-bottom: none;
-        }
-        
-        .result-normal {
-            color: var(--success);
-            font-weight: bold;
-        }
-        
-        .result-abnormal {
-            color: var(--danger);
-            font-weight: bold;
-        }
-        
-        .result-pending {
-            color: var(--warning);
-            font-weight: bold;
-        }
-        
-        .toggle-results {
-            cursor: pointer;
-            color: var(--hospital-blue);
-            font-weight: 500;
-        }
-        
-        /* أنماط جديدة للأقسام */
         .department-badge {
             padding: 5px 10px;
             border-radius: 20px;
@@ -301,13 +240,13 @@
             font-weight: 500;
         }
         
-        .department-women {
-            background-color: var(--women-department);
+        .department-children {
+            background-color: var(--consultation-children);
             color: white;
         }
         
-        .department-children {
-            background-color: var(--children-department);
+        .department-women {
+            background-color: var(--consultation-women);
             color: white;
         }
         
@@ -326,23 +265,23 @@
             box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
         }
         
-        .btn-women {
-            background-color: var(--women-department);
-            color: white;
-        }
-        
-        .btn-women:hover {
-            background-color: #d91a72;
-            color: white;
-        }
-        
         .btn-children {
-            background-color: var(--children-department);
+            background-color: var(--consultation-children);
             color: white;
         }
         
         .btn-children:hover {
             background-color: #199d7a;
+            color: white;
+        }
+        
+        .btn-women {
+            background-color: var(--consultation-women);
+            color: white;
+        }
+        
+        .btn-women:hover {
+            background-color: #d91a72;
             color: white;
         }
         
@@ -383,11 +322,11 @@
             </button>
         </div>
         <div class="sidebar-menu">
-            <a href="index.html" class="sidebar-item ">
+            <a href="index.html" class="sidebar-item">
                 <span class="sidebar-icon"><i class="fas fa-ambulance"></i></span>
                 <span class="sidebar-text">قسم الطوارئ</span>
             </a>
-            <a href="consultation.html" class="sidebar-item">
+            <a href="consultation.html" class="sidebar-item ">
                 <span class="sidebar-icon"><i class="fas fa-stethoscope"></i></span>
                 <span class="sidebar-text">قسم الاستشارية</span>
             </a>
@@ -395,11 +334,11 @@
                 <span class="sidebar-icon"><i class="fas fa-flask"></i></span>
                 <span class="sidebar-text">قسم المختبر</span>
             </a>
-            <a href="rcu.html" class="sidebar-item ">
+            <a href="rcu.html" class="sidebar-item">
                 <span class="sidebar-icon"><i class="fas fa-procedures"></i></span>
                 <span class="sidebar-text">العناية المركزة</span>
             </a>
-            <a href="radiology.html" class="sidebar-item">
+            <a href="radiology.html" class="sidebar-item ">
                 <span class="sidebar-icon"><i class="fas fa-x-ray"></i></span>
                 <span class="sidebar-text">قسم الأشعة</span>
             </a>
@@ -425,10 +364,10 @@
             <div class="container">
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
-                        <i class="fas fa-hospital fa-3x me-3"></i>
+                        <i class="fas fa-stethoscope fa-3x me-3"></i>
                         <div>
                             <h1 class="h2 mb-0">مستشفى النسائية والاطفال التعليمي</h1>
-                            <p class="mb-0">نظام إدارة قسم الطوارئ</p>
+                            <p class="mb-0">نظام إدارة قسم الاستشارية</p>
                         </div>
                     </div>
                     <div class="d-flex">
@@ -454,10 +393,10 @@
                         <i class="fas fa-list me-1"></i> جميع الأقسام
                     </button>
                     <button type="button" class="btn btn-women" data-department="women">
-                        <i class="fas fa-female me-1"></i> طوارئ النسائية
+                        <i class="fas fa-female me-1"></i> استشارية النسائية
                     </button>
                     <button type="button" class="btn btn-children" data-department="children">
-                        <i class="fas fa-child me-1"></i> طوارئ الأطفال
+                        <i class="fas fa-child me-1"></i> استشارية الأطفال
                     </button>
                 </div>
             </div>
@@ -465,31 +404,31 @@
             <div class="row">
                 <!-- الإحصائيات -->
                 <div class="col-md-3 mb-4">
-                    <div class="emergency-card stats-card bg-white">
+                    <div class="consultation-card stats-card bg-white">
                         <i class="fas fa-user-injured fa-2x text-primary mb-2"></i>
                         <h3 class="stats-number" id="total-patients">0</h3>
                         <p class="text-muted">إجمالي المرضى</p>
                     </div>
                 </div>
                 <div class="col-md-3 mb-4">
-                    <div class="emergency-card stats-card bg-white">
+                    <div class="consultation-card stats-card bg-white">
                         <i class="fas fa-procedures fa-2x text-warning mb-2"></i>
                         <h3 class="stats-number" id="waiting-patients">0</h3>
                         <p class="text-muted">في قائمة الانتظار</p>
                     </div>
                 </div>
                 <div class="col-md-3 mb-4">
-                    <div class="emergency-card stats-card bg-white">
+                    <div class="consultation-card stats-card bg-white">
                         <i class="fas fa-user-md fa-2x text-info mb-2"></i>
-                        <h3 class="stats-number" id="in-treatment">0</h3>
-                        <p class="text-muted">قيد العلاج</p>
+                        <h3 class="stats-number" id="in-consultation">0</h3>
+                        <p class="text-muted">قيد الاستشارة</p>
                     </div>
                 </div>
                 <div class="col-md-3 mb-4">
-                    <div class="emergency-card stats-card bg-white">
+                    <div class="consultation-card stats-card bg-white">
                         <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
-                        <h3 class="stats-number" id="treated-patients">0</h3>
-                        <p class="text-muted">تمت معالجتهم</p>
+                        <h3 class="stats-number" id="completed-patients">0</h3>
+                        <p class="text-muted">تمت الاستشارة</p>
                     </div>
                 </div>
             </div>
@@ -508,8 +447,8 @@
                     <div class="tab-content" id="myTabContent">
                         <!-- نموذج إضافة مريض جديد -->
                         <div class="tab-pane fade show active" id="add" role="tabpanel">
-                            <div class="emergency-card bg-white p-4">
-                                <h3 class="section-title">إضافة حالة طارئة جديدة</h3>
+                            <div class="consultation-card bg-white p-4">
+                                <h3 class="section-title">إضافة حالة استشارية جديدة</h3>
                                 <form id="patient-form">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
@@ -517,32 +456,31 @@
                                             <input type="text" class="form-control" id="name" required>
                                         </div>
                                         <div class="col-md-6 mb-3">
+                                            <label for="mobile" class="form-label">رقم الموبايل</label>
+                                            <input type="tel" class="form-control" id="mobile" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
                                             <label for="age" class="form-label">العمر</label>
                                             <input type="number" class="form-control" id="age" required>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label for="gender" class="form-label">الجنس</label>
-                                            <select class="form-select" id="gender" required>
-                                                <option value="" selected disabled>اختر الجنس</option>
-                                                <option value="male">ذكر</option>
-                                                <option value="female">أنثى</option>
-                                            </select>
+                                            <label for="address" class="form-label">السكن</label>
+                                            <input type="text" class="form-control" id="address" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="temperature" class="form-label">درجة الحرارة</label>
+                                            <input type="number" step="0.1" class="form-control" id="temperature" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="weight" class="form-label">الوزن (كجم)</label>
+                                            <input type="number" step="0.1" class="form-control" id="weight" required>
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="department" class="form-label">القسم</label>
                                             <select class="form-select" id="department" required>
                                                 <option value="" selected disabled>اختر القسم</option>
-                                                <option value="women">طوارئ النسائية</option>
-                                                <option value="children">طوارئ الأطفال</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label for="priority" class="form-label">أولوية الحالة</label>
-                                            <select class="form-select" id="priority" required>
-                                                <option value="" selected disabled>اختر الأولوية</option>
-                                                <option value="high">عالي (حرج)</option>
-                                                <option value="medium">متوسط</option>
-                                                <option value="low">منخفض</option>
+                                                <option value="women">استشارية النسائية</option>
+                                                <option value="children">استشارية الأطفال</option>
                                             </select>
                                         </div>
                                         <div class="col-12 mb-3">
@@ -550,7 +488,7 @@
                                             <textarea class="form-control" id="symptoms" rows="3" required></textarea>
                                         </div>
                                         <div class="col-12">
-                                            <button type="submit" class="btn btn-hospital">
+                                            <button type="submit" class="btn btn-consultation">
                                                 <i class="fas fa-plus-circle me-2"></i> إضافة المريض
                                             </button>
                                         </div>
@@ -561,18 +499,20 @@
                         
                         <!-- قائمة المرضى -->
                         <div class="tab-pane fade" id="list" role="tabpanel">
-                            <div class="emergency-card bg-white p-4">
-                                <h3 class="section-title">قائمة المرضى في الطوارئ</h3>
+                            <div class="consultation-card bg-white p-4">
+                                <h3 class="section-title">قائمة المرضى في الاستشارية</h3>
                                 <div class="table-responsive">
                                     <table class="table table-hover">
                                         <thead class="table-light">
                                             <tr>
                                                 <th>اسم المريض</th>
+                                                <th>رقم الموبايل</th>
                                                 <th>العمر</th>
-                                                <th>الجنس</th>
+                                                <th>السكن</th>
+                                                <th>درجة الحرارة</th>
+                                                <th>الوزن</th>
                                                 <th>القسم</th>
                                                 <th>الأعراض</th>
-                                                <th>الأولوية</th>
                                                 <th>الحالة</th>
                                                 <th>الوقت</th>
                                                 <th>الإجراءات</th>
@@ -591,72 +531,20 @@
         </div>
 
         <!-- التذييل -->
-        <footer style="background-color: #0056b3; color: white;" class="py-4 mt-5">
+        <footer style="background-color: #2c3e50; color: white;" class="py-4 mt-5">
             <div class="container">
                 <div class="row">
                     <div class="col-md-6">
                         <h5>مستشفى النسائية والاطفال التعليمي</h5>
-                        <p>نحن هنا لخدمتكم على مدار 24 ساعة</p>
+                        <p>قسم الاستشارية - خدمة استشارية متخصصة</p>
                     </div>
                     <div class="col-md-6 text-md-end">
                         <p>© 2025 نظام إدارة المستشفى. جميع الحقوق محفوظة.</p>
-                        <p>قسم الطوارئ - الإصدار 1.0</p>
+                        <p>قسم الاستشارية - الإصدار 1.0</p>
                     </div>
                 </div>
             </div>
         </footer>
-    </div>
-
-    <!-- مودال إضافة فحص للمختبر -->
-    <div class="modal fade" id="labTestModal" tabindex="-1" aria-labelledby="labTestModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="labTestModalLabel">طلب فحص جديد للمختبر</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="lab-test-form">
-                        <input type="hidden" id="lab-patient-id">
-                        <div class="mb-3">
-                            <label for="patient-name" class="form-label">اسم المريض</label>
-                            <input type="text" class="form-control" id="lab-patient-name" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label for="patient-age" class="form-label">العمر</label>
-                            <input type="text" class="form-control" id="lab-patient-age" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label for="lab-department" class="form-label">القسم المخبري</label>
-                            <select class="form-select" id="lab-department" required>
-                                <option value="" selected disabled>اختر القسم المخبري</option>
-                                <option value="وحده امراض الدم">وحده امراض الدم</option>
-                                <option value="وحده الفايروسات">وحده الفايروسات</option>
-                                <option value="وحده الطفيليات">وحده الطفيليات</option>
-                                <option value="وحده الكيمياء السريريه">وحده الكيمياء السريريه</option>
-                                <option value="وحده الأحياء المجهريه">وحده الأحياء المجهريه</option>
-                                <option value="وحده الهرمونات">وحده الهرمونات</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="test-priority" class="form-label">أولوية الفحص</label>
-                            <select class="form-select" id="test-priority" required>
-                                <option value="normal">عادي</option>
-                                <option value="urgent">عاجل</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="test-notes" class="form-label">ملاحظات</label>
-                            <textarea class="form-control" id="test-notes" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn btn-hospital" id="submit-lab-test">إرسال الفحص</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Bootstrap & Firebase -->
@@ -724,9 +612,6 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         
-        // تهيئة المودال
-        const labTestModal = new bootstrap.Modal(document.getElementById('labTestModal'));
-        
         // متغيرات التصفية
         let currentDepartmentFilter = "all";
         
@@ -735,19 +620,23 @@
             e.preventDefault();
             
             const name = document.getElementById('name').value;
+            const mobile = document.getElementById('mobile').value;
             const age = document.getElementById('age').value;
-            const gender = document.getElementById('gender').value;
+            const address = document.getElementById('address').value;
+            const temperature = document.getElementById('temperature').value;
+            const weight = document.getElementById('weight').value;
             const department = document.getElementById('department').value;
-            const priority = document.getElementById('priority').value;
             const symptoms = document.getElementById('symptoms').value;
             
             // إضافة المريض إلى Firestore
-            db.collection('patients').add({
+            db.collection('consultation_patients').add({
                 name: name,
+                mobile: mobile,
                 age: age,
-                gender: gender,
+                address: address,
+                temperature: temperature,
+                weight: weight,
                 department: department,
-                priority: priority,
                 symptoms: symptoms,
                 status: 'waiting',
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
@@ -763,50 +652,12 @@
             });
         });
         
-        // إرسال فحص إلى المختبر
-        document.getElementById('submit-lab-test').addEventListener('click', function() {
-            const patientId = document.getElementById('lab-patient-id').value;
-            const patientName = document.getElementById('lab-patient-name').value;
-            const patientAge = document.getElementById('lab-patient-age').value;
-            const labDepartment = document.getElementById('lab-department').value;
-            const testPriority = document.getElementById('test-priority').value;
-            const testNotes = document.getElementById('test-notes').value;
-            
-            if (!labDepartment) {
-                alert('يرجى اختيار القسم المخبري');
-                return;
-            }
-            
-            // إضافة الفحص إلى Firestore
-            db.collection('lab_tests').add({
-                patientId: patientId,
-                patientName: patientName,
-                patientAge: patientAge,
-                department: labDepartment, // استخدام القسم المختار
-                testType: labDepartment, // استخدام اسم القسم كنوع الفحص
-                priority: testPriority,
-                notes: testNotes,
-                status: 'pending',
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            })
-            .then(() => {
-                alert('تم إرسال الفحص إلى المختبر بنجاح!');
-                labTestModal.hide();
-                // إعادة تعيين نموذج الفحص
-                document.getElementById('lab-test-form').reset();
-            })
-            .catch((error) => {
-                console.error("Error adding document: ", error);
-                alert('حدث خطأ أثناء إرسال الفحص. يرجى المحاولة مرة أخرى.');
-            });
-        });
-        
         // تحميل قائمة المرضى من Firestore
         function loadPatients() {
             const patientsTable = document.getElementById('patients-table-body');
-            patientsTable.innerHTML = '<tr><td colspan="9" class="text-center">جاري تحميل البيانات...</td></tr>';
+            patientsTable.innerHTML = '<tr><td colspan="11" class="text-center">جاري تحميل البيانات...</td></tr>';
             
-            let query = db.collection('patients').orderBy('timestamp', 'desc');
+            let query = db.collection('consultation_patients').orderBy('timestamp', 'desc');
             
             // تطبيق التصفية حسب القسم
             if (currentDepartmentFilter !== "all") {
@@ -818,8 +669,8 @@
                 patientsTable.innerHTML = '';
                 let totalPatients = 0;
                 let waitingPatients = 0;
-                let inTreatment = 0;
-                let treatedPatients = 0;
+                let inConsultation = 0;
+                let completedPatients = 0;
                 
                 querySnapshot.forEach((doc) => {
                     const patient = doc.data();
@@ -828,39 +679,28 @@
                     
                     // تحديث الإحصائيات
                     if (patient.status === 'waiting') waitingPatients++;
-                    else if (patient.status === 'in-treatment') inTreatment++;
-                    else if (patient.status === 'treated') treatedPatients++;
+                    else if (patient.status === 'in-consultation') inConsultation++;
+                    else if (patient.status === 'completed') completedPatients++;
                     
                     // إنشاء صف في الجدول
                     const row = document.createElement('tr');
-                    row.className = `priority-${patient.priority}`;
-                    
-                    // تنسيق الأولوية
-                    let priorityBadge = '';
-                    if (patient.priority === 'high') {
-                        priorityBadge = '<span class="badge bg-danger">عالي</span>';
-                    } else if (patient.priority === 'medium') {
-                        priorityBadge = '<span class="badge bg-warning">متوسط</span>';
-                    } else {
-                        priorityBadge = '<span class="badge bg-success">منخفض</span>';
-                    }
                     
                     // تنسيق القسم
                     let departmentBadge = '';
                     if (patient.department === 'women') {
-                        departmentBadge = '<span class="department-badge department-women">طوارئ النسائية</span>';
+                        departmentBadge = '<span class="department-badge department-women">استشارية النسائية</span>';
                     } else {
-                        departmentBadge = '<span class="department-badge department-children">طوارئ الأطفال</span>';
+                        departmentBadge = '<span class="department-badge department-children">استشارية الأطفال</span>';
                     }
                     
                     // تنسيق الحالة
                     let statusBadge = '';
                     if (patient.status === 'waiting') {
                         statusBadge = '<span class="badge bg-secondary">في الانتظار</span>';
-                    } else if (patient.status === 'in-treatment') {
-                        statusBadge = '<span class="badge bg-primary">قيد العلاج</span>';
+                    } else if (patient.status === 'in-consultation') {
+                        statusBadge = '<span class="badge bg-primary">قيد الاستشارة</span>';
                     } else {
-                        statusBadge = '<span class="badge bg-success">تم العلاج</span>';
+                        statusBadge = '<span class="badge bg-success">تمت الاستشارة</span>';
                     }
                     
                     // تنسيق الوقت
@@ -869,25 +709,21 @@
                     
                     row.innerHTML = `
                         <td>${patient.name}</td>
+                        <td>${patient.mobile}</td>
                         <td>${patient.age}</td>
-                        <td>${patient.gender === 'male' ? 'ذكر' : 'أنثى'}</td>
+                        <td>${patient.address}</td>
+                        <td>${patient.temperature}°C</td>
+                        <td>${patient.weight} كجم</td>
                         <td>${departmentBadge}</td>
                         <td>${patient.symptoms}</td>
-                        <td>${priorityBadge}</td>
                         <td>${statusBadge}</td>
                         <td>${timeStr}</td>
                         <td>
-                            <button class="btn btn-sm btn-outline-info send-to-lab" data-id="${patientId}" data-name="${patient.name}" data-age="${patient.age}">
-                                <i class="fas fa-flask"></i> مختبر
-                            </button>
                             <button class="btn btn-sm btn-outline-primary update-status" data-id="${patientId}" data-status="${patient.status}">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button class="btn btn-sm btn-outline-danger delete-patient" data-id="${patientId}">
                                 <i class="fas fa-trash"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-secondary view-results" data-id="${patientId}" data-name="${patient.name}">
-                                <i class="fas fa-file-medical"></i> نتائج
                             </button>
                         </td>
                     `;
@@ -898,8 +734,8 @@
                 // تحديث الإحصائيات
                 document.getElementById('total-patients').textContent = totalPatients;
                 document.getElementById('waiting-patients').textContent = waitingPatients;
-                document.getElementById('in-treatment').textContent = inTreatment;
-                document.getElementById('treated-patients').textContent = treatedPatients;
+                document.getElementById('in-consultation').textContent = inConsultation;
+                document.getElementById('completed-patients').textContent = completedPatients;
                 
                 // إضافة معالجات الأحداث للأزرار
                 document.querySelectorAll('.update-status').forEach(button => {
@@ -908,11 +744,11 @@
                         const currentStatus = this.getAttribute('data-status');
                         
                         let newStatus;
-                        if (currentStatus === 'waiting') newStatus = 'in-treatment';
-                        else if (currentStatus === 'in-treatment') newStatus = 'treated';
+                        if (currentStatus === 'waiting') newStatus = 'in-consultation';
+                        else if (currentStatus === 'in-consultation') newStatus = 'completed';
                         else newStatus = 'waiting';
                         
-                        db.collection('patients').doc(patientId).update({
+                        db.collection('consultation_patients').doc(patientId).update({
                             status: newStatus
                         })
                         .then(() => {
@@ -931,7 +767,7 @@
                         const patientId = this.getAttribute('data-id');
                         
                         if (confirm('هل أنت متأكد من حذف هذا المريض؟')) {
-                            db.collection('patients').doc(patientId).delete()
+                            db.collection('consultation_patients').doc(patientId).delete()
                             .then(() => {
                                 alert('تم حذف المريض بنجاح!');
                                 loadPatients();
@@ -944,157 +780,29 @@
                     });
                 });
                 
-                // إضافة معالجات الأحداث لأزرار إرسال إلى المختبر
-                document.querySelectorAll('.send-to-lab').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const patientId = this.getAttribute('data-id');
-                        const patientName = this.getAttribute('data-name');
-                        const patientAge = this.getAttribute('data-age');
-                        
-                        document.getElementById('lab-patient-id').value = patientId;
-                        document.getElementById('lab-patient-name').value = patientName;
-                        document.getElementById('lab-patient-age').value = patientAge;
-                        
-                        labTestModal.show();
-                    });
-                });
-                
-                // إضافة معالجات الأحداث لأزرار عرض النتائج
-                document.querySelectorAll('.view-results').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const patientId = this.getAttribute('data-id');
-                        const patientName = this.getAttribute('data-name');
-                        
-                        // عرض نتائج الفحوصات
-                        viewTestResults(patientId, patientName);
-                    });
-                });
-                
                 if (totalPatients === 0) {
-                    patientsTable.innerHTML = '<tr><td colspan="9" class="text-center">لا توجد بيانات للمرضى</td></tr>';
+                    patientsTable.innerHTML = '<tr><td colspan="11" class="text-center">لا توجد بيانات</td></tr>';
                 }
             })
             .catch((error) => {
                 console.error("Error getting documents: ", error);
-                patientsTable.innerHTML = '<tr><td colspan="9" class="text-center">حدث خطأ في تحميل البيانات</td></tr>';
+                patientsTable.innerHTML = '<tr><td colspan="11" class="text-center">حدث خطأ في تحميل البيانات</td></tr>';
             });
-        }
-        
-        // دالة لعرض نتائج الفحوصات
-        function viewTestResults(patientId, patientName) {
-            // إنشاء مودال مخصص لعرض النتائج
-            const modalHTML = `
-                <div class="modal fade" id="resultsModal" tabindex="-1" aria-labelledby="resultsModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="resultsModalLabel">نتائج فحوصات المريض: ${patientName}</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div id="test-results-container">
-                                    <p class="text-center">جاري تحميل النتائج...</p>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            // إضافة المودال إلى DOM إذا لم يكن موجودًا
-            if (!document.getElementById('resultsModal')) {
-                document.body.insertAdjacentHTML('beforeend', modalHTML);
-            }
-            
-            // تحميل نتائج الفحوصات
-            const resultsContainer = document.getElementById('test-results-container');
-            resultsContainer.innerHTML = '<p class="text-center">جاري تحميل النتائج...</p>';
-            
-            db.collection('lab_tests').where('patientId', '==', patientId).orderBy('timestamp', 'desc')
-            .get()
-            .then((querySnapshot) => {
-                if (querySnapshot.empty) {
-                    resultsContainer.innerHTML = '<p class="text-center">لا توجد فحوصات لهذا المريض</p>';
-                    return;
-                }
-                
-                let resultsHTML = '';
-                querySnapshot.forEach((doc) => {
-                    const test = doc.data();
-                    const date = test.timestamp ? test.timestamp.toDate() : new Date();
-                    const dateStr = date.toLocaleDateString('ar-SA');
-                    
-                    // تنسيق حالة الفحص
-                    let statusBadge = '';
-                    if (test.status === 'pending') {
-                        statusBadge = '<span class="badge bg-warning">قيد المعالجة</span>';
-                    } else if (test.status === 'completed') {
-                        statusBadge = '<span class="badge bg-success">مكتمل</span>';
-                    } else {
-                        statusBadge = '<span class="badge bg-secondary">غير معروف</span>';
-                    }
-                    
-                    // تنسيق الأولوية
-                    let priorityBadge = '';
-                    if (test.priority === 'urgent') {
-                        priorityBadge = '<span class="badge bg-danger">عاجل</span>';
-                    } else {
-                        priorityBadge = '<span class="badge bg-info">عادي</span>';
-                    }
-                    
-                    resultsHTML += `
-                        <div class="test-result-item">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h6>${test.department}</h6>
-                                <div>
-                                    ${priorityBadge}
-                                    ${statusBadge}
-                                </div>
-                            </div>
-                            <p><strong>التاريخ:</strong> ${dateStr}</p>
-                            ${test.notes ? `<p><strong>ملاحظات:</strong> ${test.notes}</p>` : ''}
-                            ${test.results ? `
-                                <div class="mt-2">
-                                    <strong>النتائج:</strong>
-                                    <p class="result-${test.results.normal ? 'normal' : 'abnormal'}">
-                                        ${test.results.normal ? 'النتائج طبيعية' : 'هناك نتائج غير طبيعية'}
-                                    </p>
-                                    ${test.results.details ? `<p>${test.results.details}</p>` : ''}
-                                </div>
-                            ` : ''}
-                            <hr>
-                        </div>
-                    `;
-                });
-                
-                resultsContainer.innerHTML = resultsHTML;
-            })
-            .catch((error) => {
-                console.error("Error getting test results: ", error);
-                resultsContainer.innerHTML = '<p class="text-center text-danger">حدث خطأ في تحميل النتائج</p>';
-            });
-            
-            // عرض المودال
-            const resultsModal = new bootstrap.Modal(document.getElementById('resultsModal'));
-            resultsModal.show();
         }
         
         // فلتر حسب القسم
-        document.querySelectorAll('[data-department]').forEach(button => {
+        document.querySelectorAll('.department-filter .btn').forEach(button => {
             button.addEventListener('click', function() {
-                const department = this.getAttribute('data-department');
-                
-                // تحديث حالة الأزرار النشطة
-                document.querySelectorAll('[data-department]').forEach(btn => {
+                // إزالة النشاط من جميع الأزرار
+                document.querySelectorAll('.department-filter .btn').forEach(btn => {
                     btn.classList.remove('active');
                 });
+                
+                // إضافة النشاط للزر المحدد
                 this.classList.add('active');
                 
-                // تحديث الفلتر الحالي
-                currentDepartmentFilter = department;
+                // تحديث عامل التصفية
+                currentDepartmentFilter = this.getAttribute('data-department');
                 
                 // إعادة تحميل المرضى مع التصفية
                 loadPatients();
@@ -1102,7 +810,9 @@
         });
         
         // تحميل المرضى عند تحميل الصفحة
-        window.addEventListener('load', loadPatients);
+        window.addEventListener('DOMContentLoaded', function() {
+            loadPatients();
+        });
     </script>
 </body>
 </html>

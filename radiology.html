@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة مستشفى - قسم الأشعة</title>
+    <!-- ربط Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- ربط خطوط Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- ربط Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ربط Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --secondary: #6c757d;
+            --success: #198754;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #0dcaf0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --radiology-primary: #3498db;
+            --radiology-secondary: #2980b9;
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 70px;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            transition: margin-right 0.3s;
+        }
+        
+        /* الشريط الجانبي */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            transition: width 0.3s;
+            z-index: 1000;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            overflow-x: hidden;
+        }
+        
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+        
+        .sidebar-header {
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .sidebar-header h3 {
+            font-size: 1.2rem;
+            margin: 0;
+            white-space: nowrap;
+        }
+        
+        .sidebar.collapsed .sidebar-header h3 {
+            display: none;
+        }
+        
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+        
+        .sidebar-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-right: 3px solid white;
+        }
+        
+        .sidebar-icon {
+            margin-left: 10px;
+            font-size: 1.2rem;
+            min-width: 25px;
+            text-align: center;
+        }
+        
+        .sidebar-text {
+            white-space: nowrap;
+        }
+        
+        .sidebar.collapsed .sidebar-text {
+            display: none;
+        }
+        
+        .main-content {
+            margin-right: var(--sidebar-width);
+            transition: margin-right 0.3s;
+        }
+        
+        .main-content.expanded {
+            margin-right: var(--sidebar-collapsed-width);
+        }
+        
+        /* تعديلات على الهيدر الأصلي */
+        .hospital-header {
+            background: linear-gradient(135deg, var(--radiology-primary), var(--radiology-secondary));
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        /* إزالة روابط الأقسام من الهيدر الأصلي */
+        .department-link {
+            display: none;
+        }
+        
+        /* باقي الأنماط الأصلية */
+        .radiology-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .radiology-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .patient-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn-radiology {
+            background-color: var(--radiology-primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-radiology:hover {
+            background-color: var(--radiology-secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-tabs .nav-link {
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--secondary);
+            font-weight: 500;
+            padding: 12px 20px;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--radiology-primary);
+            border-bottom: 3px solid var(--radiology-primary);
+            background: transparent;
+        }
+        
+        .form-control, .form-select {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            border-color: var(--radiology-primary);
+        }
+        
+        .section-title {
+            position: relative;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--radiology-primary);
+            border-radius: 2px;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .status-completed {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .status-urgent {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .department-badge {
+            background-color: var(--radiology-primary);
+            color: white;
+        }
+        
+        .department-filter {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .department-filter .btn-group .btn {
+            border-radius: 20px;
+            margin-left: 10px;
+        }
+        
+        .department-filter .btn.active {
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* معاينة الصور */
+        .image-preview {
+            width: 100%;
+            max-height: 200px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .image-preview-placeholder {
+            color: #6c757d;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        /* معرض الصور */
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .gallery-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+        
+        .gallery-item-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-number {
+                font-size: 2rem;
+            }
+            
+            .department-filter {
+                justify-content: center;
+            }
+            
+            .sidebar {
+                width: var(--sidebar-collapsed-width);
+            }
+            
+            .sidebar:not(.collapsed) {
+                width: var(--sidebar-width);
+            }
+            
+            .main-content {
+                margin-right: var(--sidebar-collapsed-width);
+            }
+            
+            .main-content.expanded {
+                margin-right: var(--sidebar-width);
+            }
+            
+            .image-gallery {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- الشريط الجانبي -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>أقسام المستشفى</h3>
+            <button class="toggle-btn" id="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="sidebar-item">
+                <span class="sidebar-icon"><i class="fas fa-ambulance"></i></span>
+                <span class="sidebar-text">قسم الطوارئ</span>
+            </a>
+            <a href="consultation.html" class="sidebar-item">
+                <span class="sidebar-icon"><i class="fas fa-stethoscope"></i></span>
+                <span class="sidebar-text">قسم الاستشارية</span>
+            </a>
+            <a href="lab.html" class="sidebar-item">
+                <span class="sidebar-icon"><i class="fas fa-flask"></i></span>
+                <span class="sidebar-text">قسم المختبر</span>
+            </a>
+            <a href="rcu.html" class="sidebar-item">
+                <span class="sidebar-icon"><i class="fas fa-procedures"></i></span>
+                <span class="sidebar-text">العناية المركزة</span>
+            </a>
+            <a href="radiology.html" class="sidebar-item ">
+                <span class="sidebar-icon"><i class="fas fa-x-ray"></i></span>
+                <span class="sidebar-text">قسم الأشعة</span>
+            </a>
+            <a href="nicu.html" class="sidebar-item ">
+                <span class="sidebar-icon"><i class="fas fa-baby"></i></span>
+                <span class="sidebar-text"> قسم الخدج البيتي </span>
+            </a>
+            <a href="nicu_sterile.html" class="sidebar-item ">
+                <span class="sidebar-icon"><i class="fas fa-shield-alt"></i></span>
+                <span class="sidebar-text">قسم الخدج المعقم</span>
+            </a>
+            <a href="dental.html" class="sidebar-item ">
+                <span class="sidebar-icon"><i class="fas fa-tooth"></i></span>
+                <span class="sidebar-text">وحدة الأسنان</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content" id="main-content">
+        <!-- الهيدر -->
+        <header class="hospital-header">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-x-ray fa-3x me-3"></i>
+                        <div>
+                            <h1 class="h2 mb-0">مستشفى النسائية والاطفال التعليمي</h1>
+                            <p class="mb-0">نظام إدارة قسم الأشعة</p>
+                        </div>
+                    </div>
+                    <div class="d-flex">
+                        <div class="d-flex align-items-center bg-white bg-opacity-25 p-2 rounded me-2">
+                            <i class="fas fa-clock me-2"></i>
+                            <span id="current-time">00:00:00</span>
+                        </div>
+                        <div class="d-flex align-items-center bg-white bg-opacity-25 p-2 rounded">
+                            <i class="fas fa-calendar me-2"></i>
+                            <span id="current-date">--/--/----</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- المحتوى الرئيسي -->
+        <div class="container my-4">
+            <div class="row">
+                <!-- الإحصائيات -->
+                <div class="col-md-3 mb-4">
+                    <div class="radiology-card stats-card bg-white">
+                        <i class="fas fa-x-ray fa-2x text-primary mb-2"></i>
+                        <h3 class="stats-number" id="total-requests">0</h3>
+                        <p class="text-muted">إجمالي الطلبات</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="radiology-card stats-card bg-white">
+                        <i class="fas fa-hourglass-half fa-2x text-warning mb-2"></i>
+                        <h3 class="stats-number" id="pending-requests">0</h3>
+                        <p class="text-muted">طلبات قيد الانتظار</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="radiology-card stats-card bg-white">
+                        <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                        <h3 class="stats-number" id="completed-requests">0</h3>
+                        <p class="text-muted">طلبات مكتملة</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="radiology-card stats-card bg-white">
+                        <i class="fas fa-exclamation-circle fa-2x text-danger mb-2"></i>
+                        <h3 class="stats-number" id="urgent-requests">0</h3>
+                        <p class="text-muted">طلبات عاجلة</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests" type="button" role="tab">طلبات الأشعة</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="add-tab" data-bs-toggle="tab" data-bs-target="#add" type="button" role="tab">إضافة تقرير أشعة</button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="myTabContent">
+                        <!-- طلبات الأشعة -->
+                        <div class="tab-pane fade show active" id="requests" role="tabpanel">
+                            <div class="radiology-card bg-white p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h3 class="section-title">طلبات الأشعة الواردة</h3>
+                                    <div class="department-filter">
+                                        <select class="form-select" id="status-filter">
+                                            <option value="all">جميع الحالات</option>
+                                            <option value="pending">قيد الانتظار</option>
+                                            <option value="completed">مكتمل</option>
+                                            <option value="urgent">عاجل</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>اسم المريض</th>
+                                                <th>العمر</th>
+                                                <th>القسم المحول</th>
+                                                <th>نوع الأشعة</th>
+                                                <th>الطبيب المحول</th>
+                                                <th>ملاحظات</th>
+                                                <th>الحالة</th>
+                                                <th>تاريخ الطلب</th>
+                                                <th>الإجراءات</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="requests-table-body">
+                                            <!-- سيتم ملء هذا الجدول من خلال JavaScript -->
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+<!-- مودال نتائج الأشعة -->
+<div class="modal fade" id="radiologyResultsModal" tabindex="-1" aria-labelledby="radiologyResultsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="radiologyResultsModalLabel">نتائج الأشعة</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+      </div>
+      <div class="modal-body">
+        <h6>اسم المريض: <span id="results-patient-name"></span></h6>
+        <div id="radiology-results-container">
+          <!-- يتم تعبئة النتائج من JavaScript -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+                        <!-- إضافة تقرير أشعة -->
+                        <div class="tab-pane fade" id="add" role="tabpanel">
+                            <div class="radiology-card bg-white p-4">
+                                <h3 class="section-title">إضافة تقرير أشعة</h3>
+                                <form id="radiology-form">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="patient-search" class="form-label">بحث عن المريض</label>
+                                            <input type="text" class="form-control" id="patient-search" placeholder="اكتب اسم المريض للبحث">
+                                            <div id="patient-results" class="mt-2"></div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="radiology-type" class="form-label">نوع الأشعة</label>
+                                            <select class="form-select" id="radiology-type" required>
+                                                <option value="" selected disabled>اختر نوع الأشعة</option>
+                                                <option value="أشعة سينية">أشعة سينية (X-Ray)</option>
+                                                <option value="أشعة مقطعية">أشعة مقطعية (CT Scan)</option>
+                                                <option value="رنين مغناطيسي">رنين مغناطيسي (MRI)</option>
+                                                <option value="موجات فوق صوتية">موجات فوق صوتية (Ultrasound)</option>
+                                                <option value="أشعة الثدي">أشعة الثدي (Mammography)</option>
+                                                <option value="هشاشة العظام">هشاشة العظام (Bone Density)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="radiologist" class="form-label">طبيب الأشعة</label>
+                                            <input type="text" class="form-control" id="radiologist" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="radiology-date" class="form-label">تاريخ الأشعة</label>
+                                            <input type="datetime-local" class="form-control" id="radiology-date" required>
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <label for="radiology-images" class="form-label">رفع صور الأشعة</label>
+                                            <input type="file" class="form-control" id="radiology-images" multiple accept="image/*">
+                                            <div class="image-preview mt-2" id="image-preview">
+                                                <div class="image-preview-placeholder">
+                                                    <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
+                                                    <p>سيتم عرض معاينة الصور هنا</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <label for="radiology-report" class="form-label">تقرير الأشعة</label>
+                                            <textarea class="form-control" id="radiology-report" rows="5" required placeholder="أدخل تقرير الأشعة هنا..."></textarea>
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <label for="radiology-notes" class="form-label">ملاحظات إضافية</label>
+                                            <textarea class="form-control" id="radiology-notes" rows="3" placeholder="أدخل أي ملاحظات إضافية هنا..."></textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <button type="submit" class="btn btn-radiology">
+                                                <i class="fas fa-plus-circle me-2"></i> حفظ التقرير
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- التذييل -->
+        <footer style="background-color: #2980b9; color: white;" class="py-4 mt-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>مستشفى النسائية والاطفال التعليمي</h5>
+                        <p>قسم الأشعة - خدمات تشخيصية متقدمة</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p>© 2025 نظام إدارة المستشفى. جميع الحقوق محفوظة.</p>
+                        <p>قسم الأشعة - الإصدار 1.0</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- مودال عرض التقرير -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reportModalLabel">تقرير الأشعة</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p><strong>اسم المريض:</strong> <span id="report-patient-name"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>العمر:</strong> <span id="report-patient-age"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>نوع الأشعة:</strong> <span id="report-type"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>طبيب الأشعة:</strong> <span id="report-radiologist"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>تاريخ الأشعة:</strong> <span id="report-date"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>القسم المحول:</strong> <span id="report-referring-department"></span></p>
+                        </div>
+                    </div>
+                    
+                    <h6>صور الأشعة:</h6>
+                    <div class="image-gallery" id="report-gallery">
+                        <!-- سيتم ملء هذا القسم بالصور -->
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h6>تقرير الأشعة:</h6>
+                        <div class="border p-3 rounded bg-light" id="report-content"></div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h6>ملاحظات:</h6>
+                        <div class="border p-3 rounded bg-light" id="report-notes"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                    <button type="button" class="btn btn-radiology" id="print-report">
+                        <i class="fas fa-print me-2"></i> طباعة التقرير
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- مودال طلب الأشعة -->
+<div class="modal fade" id="radiologyRequestModal" tabindex="-1" aria-labelledby="radiologyRequestModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="radiologyRequestModalLabel">طلب فحص أشعة</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="radiology-request-form">
+                    <input type="hidden" id="radiology-patient-id">
+                    <div class="mb-3">
+                        <label for="radiology-patient-name" class="form-label">اسم المريض</label>
+                        <input type="text" class="form-control" id="radiology-patient-name" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="radiology-patient-age" class="form-label">العمر</label>
+                        <input type="text" class="form-control" id="radiology-patient-age" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="radiology-type" class="form-label">نوع الأشعة المطلوبة</label>
+                        <select class="form-select" id="radiology-type" required>
+                            <option value="" selected disabled>اختر نوع الأشعة</option>
+                            <option value="أشعة سينية">أشعة سينية (X-Ray)</option>
+                            <option value="أشعة مقطعية">أشعة مقطعية (CT Scan)</option>
+                            <option value="رنين مغناطيسي">رنين مغناطيسي (MRI)</option>
+                            <option value="موجات فوق صوتية">موجات فوق صوتية (Ultrasound)</option>
+                            <option value="أشعة الثدي">أشعة الثدي (Mammography)</option>
+                            <option value="هشاشة العظام">هشاشة العظام (Bone Density)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="radiology-priority" class="form-label">أولوية الفحص</label>
+                        <select class="form-select" id="radiology-priority" required>
+                            <option value="normal">عادي</option>
+                            <option value="urgent">عاجل</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="radiology-notes" class="form-label">ملاحظات</label>
+                        <textarea class="form-control" id="radiology-notes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-primary" id="submit-radiology-request">إرسال الطلب</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Bootstrap & Firebase -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // إدارة الشريط الجانبي
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        const toggleBtn = document.getElementById('sidebar-toggle');
+        
+        // التحقق من حالة الشريط في localStorage
+        const isSidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        
+        if (isSidebarCollapsed) {
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
+            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+        }
+        
+        toggleBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+            
+            // حفظ الحالة في localStorage
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+            
+            // تغيير الأيقونة
+            if (isCollapsed) {
+                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            } else {
+                toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+            }
+        });
+        
+        // تحديث الوقت والتاريخ
+        function updateDateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('ar-GB');
+            const dateStr = now.toLocaleDateString('ar-GB', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            document.getElementById('current-time').textContent = timeStr;
+            document.getElementById('current-date').textContent = dateStr;
+        }
+        
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+        
+        // تهيئة Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDisl7M6cxoTfJiRw-BRblwpjE-ERSsmsc",
+            authDomain: "school-7c742.firebaseapp.com",
+            projectId: "school-7c742",
+            storageBucket: "school-7c742.firebasestorage.app",
+            messagingSenderId: "551670242662",
+            appId: "1:551670242662:web:cd818e4cf8c4c9bda93ca7"
+        };
+        
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        
+        // تهيئة المودال
+        const reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
+        
+        // متغيرات التصفية
+        let currentStatusFilter = "all";
+        
+        // معاينة الصور قبل الرفع
+        document.getElementById('radiology-images').addEventListener('change', function(e) {
+            const preview = document.getElementById('image-preview');
+            preview.innerHTML = '';
+            
+            const files = e.target.files;
+            if (files.length === 0) {
+                preview.innerHTML = `
+                    <div class="image-preview-placeholder">
+                        <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
+                        <p>سيتم عرض معاينة الصور هنا</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.type.match('image.*')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'img-thumbnail m-1';
+                        img.style.maxHeight = '180px';
+                        preview.appendChild(img);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+        
+        // بحث عن المريض
+        document.getElementById('patient-search').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.trim();
+            const resultsContainer = document.getElementById('patient-results');
+            
+            if (searchTerm.length < 2) {
+                resultsContainer.innerHTML = '';
+                return;
+            }
+            
+            // البحث في جميع مجموعات المرضى
+            const patientPromises = [
+                db.collection('patients').where('name', '>=', searchTerm).where('name', '<=', searchTerm + '\uf8ff').get(),
+                db.collection('consultation_patients').where('name', '>=', searchTerm).where('name', '<=', searchTerm + '\uf8ff').get(),
+                db.collection('nicu_patients').where('name', '>=', searchTerm).where('name', '<=', searchTerm + '\uf8ff').get(),
+                db.collection('sterile_nicu_patients').where('name', '>=', searchTerm).where('name', '<=', searchTerm + '\uf8ff').get(),
+                db.collection('rcu_patients').where('name', '>=', searchTerm).where('name', '<=', searchTerm + '\uf8ff').get()
+            ];
+            
+            Promise.all(patientPromises).then((results) => {
+                resultsContainer.innerHTML = '';
+                let patients = [];
+                
+                results.forEach((querySnapshot, index) => {
+                    querySnapshot.forEach((doc) => {
+                        const patient = doc.data();
+                        patient.id = doc.id;
+                        patient.collection = [
+                            'patients', 
+                            'consultation_patients', 
+                            'nicu_patients', 
+                            'sterile_nicu_patients', 
+                            'rcu_patients'
+                        ][index];
+                        patients.push(patient);
+                    });
+                });
+                
+                if (patients.length === 0) {
+                    resultsContainer.innerHTML = '<div class="alert alert-info">لا توجد نتائج</div>';
+                    return;
+                }
+                
+                patients.forEach(patient => {
+                    const div = document.createElement('div');
+                    div.className = 'card mb-2';
+                    div.innerHTML = `
+                        <div class="card-body py-2">
+                            <h6 class="card-title">${patient.name}</h6>
+                            <p class="card-text mb-0">العمر: ${patient.age || patient.gestationalAge} ${patient.gestationalAge ? 'أسبوع' : 'سنة'}</p>
+                            <p class="card-text mb-0">القسم: ${getDepartmentName(patient.collection)}</p>
+                            <button class="btn btn-sm btn-primary mt-2 select-patient" 
+                                    data-id="${patient.id}" 
+                                    data-name="${patient.name}" 
+                                    data-age="${patient.age || patient.gestationalAge}" 
+                                    data-department="${patient.collection}">
+                                اختيار المريض
+                            </button>
+                        </div>
+                    `;
+                    resultsContainer.appendChild(div);
+                });
+                
+                // إضافة معالجات الأحداث لأزرار الاختيار
+                document.querySelectorAll('.select-patient').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const patientId = this.getAttribute('data-id');
+                        const patientName = this.getAttribute('data-name');
+                        const patientAge = this.getAttribute('data-age');
+                        const patientDepartment = this.getAttribute('data-department');
+                        
+                        document.getElementById('patient-search').value = patientName;
+                        document.getElementById('patient-search').setAttribute('data-patient-id', patientId);
+                        document.getElementById('patient-search').setAttribute('data-patient-department', patientDepartment);
+                        resultsContainer.innerHTML = '';
+                    });
+                });
+            });
+        });
+        
+        // الحصول على اسم القسم من اسم المجموعة
+        function getDepartmentName(collectionName) {
+            const departments = {
+                'patients': 'الطوارئ',
+                'consultation_patients': 'الاستشارية',
+                'nicu_patients': 'الخدج',
+                'sterile_nicu_patients': 'الخدج المعقم',
+                'rcu_patients': 'العناية المركزة'
+            };
+            return departments[collectionName] || 'غير معروف';
+        }
+        
+        // إضافة تقرير أشعة
+        document.getElementById('radiology-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const patientId = document.getElementById('patient-search').getAttribute('data-patient-id');
+            const patientDepartment = document.getElementById('patient-search').getAttribute('data-patient-department');
+            const patientName = document.getElementById('patient-search').value;
+            const radiologyType = document.getElementById('radiology-type').value;
+            const radiologist = document.getElementById('radiologist').value;
+            const radiologyDate = document.getElementById('radiology-date').value;
+            const radiologyReport = document.getElementById('radiology-report').value;
+            const radiologyNotes = document.getElementById('radiology-notes').value;
+            const imageFiles = document.getElementById('radiology-images').files;
+            
+            if (!patientId) {
+                alert('يرجى اختيار المريض من نتائج البحث');
+                return;
+            }
+            
+            // رفع الصور إلى Firebase Storage
+            const uploadPromises = [];
+            const imageUrls = [];
+            
+            for (let i = 0; i < imageFiles.length; i++) {
+                const file = imageFiles[i];
+                const storageRef = storage.ref(`radiology/${patientId}/${Date.now()}_${file.name}`);
+                uploadPromises.push(
+                    storageRef.put(file).then(snapshot => snapshot.ref.getDownloadURL())
+                );
+            }
+            
+            // انتظار اكتمال رفع الصور ثم حفظ البيانات
+            Promise.all(uploadPromises).then(urls => {
+                // حفظ بيانات التقرير في Firestore
+                return db.collection('radiology_reports').add({
+                    patientId: patientId,
+                    patientName: patientName,
+                    patientDepartment: patientDepartment,
+                    radiologyType: radiologyType,
+                    radiologist: radiologist,
+                    radiologyDate: radiologyDate,
+                    report: radiologyReport,
+                    notes: radiologyNotes,
+                    images: urls,
+                    status: 'completed',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }).then(() => {
+                alert('تم حفظ تقرير الأشعة بنجاح!');
+                document.getElementById('radiology-form').reset();
+                document.getElementById('image-preview').innerHTML = `
+                    <div class="image-preview-placeholder">
+                        <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
+                        <p>سيتم عرض معاينة الصور هنا</p>
+                    </div>
+                `;
+                loadRadiologyRequests();
+            }).catch(error => {
+                console.error("Error saving radiology report: ", error);
+                alert('حدث خطأ أثناء حفظ التقرير. يرجى المحاولة مرة أخرى.');
+            });
+        });
+        
+        // تحميل طلبات الأشعة
+        function loadRadiologyRequests() {
+            const requestsTable = document.getElementById('requests-table-body');
+            requestsTable.innerHTML = '<tr><td colspan="9" class="text-center">جاري تحميل البيانات...</td></tr>';
+            
+            // جلب طلبات الأشعة من المختبر
+            let query = db.collection('lab_tests')
+                .where('department', 'in', [
+                    'وحده الأشعة السينية',
+                    'وحده الأشعة المقطعية',
+                    'وحده الرنين المغناطيسي',
+                    'وحده الموجات فوق الصوتية'
+                ])
+                .orderBy('timestamp', 'desc');
+            
+            // تطبيق التصفية حسب الحالة
+            if (currentStatusFilter !== "all") {
+                query = query.where('status', '==', currentStatusFilter);
+            }
+            
+            query.get().then((querySnapshot) => {
+                requestsTable.innerHTML = '';
+                let totalRequests = 0;
+                let pendingRequests = 0;
+                let completedRequests = 0;
+                let urgentRequests = 0;
+                
+                querySnapshot.forEach((doc) => {
+                    const request = doc.data();
+                    const requestId = doc.id;
+                    totalRequests++;
+                    
+                    // تحديث الإحصائيات
+                    if (request.status === 'pending') pendingRequests++;
+                    else if (request.status === 'completed') completedRequests++;
+                    if (request.priority === 'urgent') urgentRequests++;
+                    
+                    // إنشاء صف في الجدول
+                    const row = document.createElement('tr');
+                    
+                    // تنسيق الحالة
+                    let statusBadge = '';
+                    if (request.status === 'pending') {
+                        statusBadge = '<span class="status-badge status-pending">قيد الانتظار</span>';
+                    } else {
+                        statusBadge = '<span class="status-badge status-completed">مكتمل</span>';
+                    }
+                    
+                    // تنسيق الأولوية
+                    if (request.priority === 'urgent') {
+                        row.classList.add('table-danger');
+                    }
+                    
+                    // تنسيق الوقت
+                    const date = request.timestamp ? request.timestamp.toDate() : new Date();
+                    const timeStr = date.toLocaleDateString('ar-SA');
+                    
+                    row.innerHTML = `
+                        <td>${request.patientName}</td>
+                        <td>${request.patientAge}</td>
+                        <td><span class="department-badge status-badge">${request.testType}</span></td>
+                        <td>${request.department}</td>
+                        <td>${request.notes || 'لا يوجد'}</td>
+                        <td>${statusBadge}</td>
+                        <td>${timeStr}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary view-request" data-id="${requestId}">
+                                <i class="fas fa-eye"></i> عرض
+                            </button>
+                            ${request.status !== 'completed' ? `
+                            <button class="btn btn-sm btn-success complete-request" data-id="${requestId}">
+                                <i class="fas fa-check"></i> إكمال
+                            </button>
+                            ` : ''}
+                        </td>
+                    `;
+                    
+                    requestsTable.appendChild(row);
+                });
+                
+                // تحديث الإحصائيات
+                document.getElementById('total-requests').textContent = totalRequests;
+                document.getElementById('pending-requests').textContent = pendingRequests;
+                document.getElementById('completed-requests').textContent = completedRequests;
+                document.getElementById('urgent-requests').textContent = urgentRequests;
+                
+                // إضافة معالجات الأحداث للأزرار
+                document.querySelectorAll('.view-request').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const requestId = this.getAttribute('data-id');
+                        viewRadiologyRequest(requestId);
+                    });
+                });
+                
+                document.querySelectorAll('.complete-request').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const requestId = this.getAttribute('data-id');
+                        completeRadiologyRequest(requestId);
+                    });
+                });
+                
+                if (totalRequests === 0) {
+                    requestsTable.innerHTML = '<tr><td colspan="9" class="text-center">لا توجد طلبات</td></tr>';
+                }
+            }).catch((error) => {
+                console.error("Error getting documents: ", error);
+                requestsTable.innerHTML = '<tr><td colspan="9" class="text-center">حدث خطأ في تحميل البيانات</td></tr>';
+            });
+        }
+        
+        // عرض طلب الأشعة
+        function viewRadiologyRequest(requestId) {
+            db.collection('lab_tests').doc(requestId).get().then((doc) => {
+                if (doc.exists) {
+                    const request = doc.data();
+                    
+                    // البحث عن تقرير الأشعة إذا كان مكتملاً
+                    if (request.status === 'completed') {
+                        db.collection('radiology_reports')
+                            .where('patientId', '==', request.patientId)
+                            .where('radiologyType', '==', request.department)
+                            .orderBy('timestamp', 'desc')
+                            .limit(1)
+                            .get()
+                            .then((querySnapshot) => {
+                                if (!querySnapshot.empty) {
+                                    const reportDoc = querySnapshot.docs[0];
+                                    const report = reportDoc.data();
+                                    showRadiologyReport(report);
+                                } else {
+                                    alert('لا يوجد تقرير لهذا الطلب');
+                                }
+                            });
+                    } else {
+                        alert('هذا الطلب لم يكتمل بعد');
+                    }
+                }
+            });
+        }
+        
+        // إكمال طلب الأشعة
+        function completeRadiologyRequest(requestId) {
+            if (confirm('هل تريد标记 هذا الطلب كمكتمل؟')) {
+                db.collection('lab_tests').doc(requestId).update({
+                    status: 'completed',
+                    completedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    alert('تم تحديث حالة الطلب إلى مكتمل');
+                    loadRadiologyRequests();
+                }).catch((error) => {
+                    console.error("Error updating request: ", error);
+                    alert('حدث خطأ أثناء تحديث حالة الطلب');
+                });
+            }
+        }
+        
+        // عرض تقرير الأشعة
+        function showRadiologyReport(report) {
+            document.getElementById('report-patient-name').textContent = report.patientName;
+            document.getElementById('report-patient-age').textContent = report.patientAge || 'غير محدد';
+            document.getElementById('report-type').textContent = report.radiologyType;
+            document.getElementById('report-radiologist').textContent = report.radiologist;
+            document.getElementById('report-date').textContent = report.radiologyDate;
+            document.getElementById('report-referring-department').textContent = getDepartmentName(report.patientDepartment);
+            document.getElementById('report-content').textContent = report.report;
+            document.getElementById('report-notes').textContent = report.notes || 'لا توجد ملاحظات';
+            
+            // عرض الصور
+            const gallery = document.getElementById('report-gallery');
+            gallery.innerHTML = '';
+            
+            if (report.images && report.images.length > 0) {
+                report.images.forEach((url, index) => {
+                    const galleryItem = document.createElement('div');
+                    galleryItem.className = 'gallery-item';
+                    galleryItem.innerHTML = `
+                        <img src="${url}" alt="صورة أشعة ${index + 1}">
+                        <div class="gallery-item-overlay">صورة ${index + 1}</div>
+                    `;
+                    gallery.appendChild(galleryItem);
+                });
+            } else {
+                gallery.innerHTML = '<p>لا توجد صور مرفقة</p>';
+            }
+            
+            reportModal.show();
+        }
+        
+        // طباعة التقرير
+        document.getElementById('print-report').addEventListener('click', function() {
+            const printContent = document.getElementById('reportModal').innerHTML;
+            const originalContent = document.body.innerHTML;
+            
+            document.body.innerHTML = printContent;
+            window.print();
+            document.body.innerHTML = originalContent;
+            
+            // إعادة تحميل الصفحة للعودة إلى الحالة الطبيعية
+            location.reload();
+        });
+        
+        // تصفية حسب الحالة
+        document.getElementById('status-filter').addEventListener('change', function() {
+            currentStatusFilter = this.value;
+            loadRadiologyRequests();
+        });
+        
+        // تحميل طلبات الأشعة عند تحميل الصفحة
+        window.addEventListener('DOMContentLoaded', function() {
+            loadRadiologyRequests();
+        });
+        // ========== بداية كود إدارة الأشعة ========== //
+
+// تهيئة مودال طلب الأشعة
+const radiologyRequestModal = new bootstrap.Modal(document.getElementById('radiologyRequestModal'));
+
+// إرسال طلب أشعة
+document.getElementById('submit-radiology-request').addEventListener('click', function() {
+    const patientId = document.getElementById('radiology-patient-id').value;
+    const patientName = document.getElementById('radiology-patient-name').value;
+    const patientAge = document.getElementById('radiology-patient-age').value;
+    const radiologyType = document.getElementById('radiology-type').value;
+    const radiologyPriority = document.getElementById('radiology-priority').value;
+    const radiologyNotes = document.getElementById('radiology-notes').value;
+    
+    if (!radiologyType) {
+        alert('يرجى اختيار نوع الأشعة');
+        return;
+    }
+    
+    // إضافة الطلب إلى Firestore
+    db.collection('radiology_requests').add({
+        patientId: patientId,
+        patientName: patientName,
+        patientAge: patientAge,
+        department: radiologyType,
+        testType: radiologyType,
+        priority: radiologyPriority,
+        notes: radiologyNotes,
+        status: 'pending',
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(() => {
+        alert('تم إرسال طلب الأشعة بنجاح!');
+        radiologyRequestModal.hide();
+        document.getElementById('radiology-request-form').reset();
+    })
+    .catch((error) => {
+        console.error("Error adding document: ", error);
+        alert('حدث خطأ أثناء إرسال طلب الأشعة. يرجى المحاولة مرة أخرى.');
+    });
+});
+
+// تهيئة مودال نتائج الأشعة
+const radiologyResultsModal = new bootstrap.Modal(document.getElementById('radiologyResultsModal'));
+
+// عرض نتائج الأشعة
+function viewRadiologyResults(patientId, patientName) {
+    const resultsContainer = document.getElementById('radiology-results-container');
+    resultsContainer.innerHTML = '<p class="text-center">جاري تحميل النتائج...</p>';
+    document.getElementById('results-patient-name').textContent = patientName;
+    
+    // البحث في تقارير الأشعة
+    db.collection('radiology_reports').where('patientId', '==', patientId).orderBy('timestamp', 'desc')
+    .get()
+    .then((querySnapshot) => {
+        if (querySnapshot.empty) {
+            resultsContainer.innerHTML = '<p class="text-center">لا توجد نتائج أشعة لهذا المريض</p>';
+            return;
+        }
+        
+        let resultsHTML = '';
+        querySnapshot.forEach((doc) => {
+            const report = doc.data();
+            const date = report.timestamp ? report.timestamp.toDate() : new Date();
+            const dateStr = date.toLocaleDateString('ar-SA');
+            
+            resultsHTML += `
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h6>${report.radiologyType} - ${dateStr}</h6>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>طبيب الأشعة:</strong> ${report.radiologist}</p>
+                        <p><strong>التقرير:</strong> ${report.report}</p>
+                        ${report.notes ? `<p><strong>ملاحظات:</strong> ${report.notes}</p>` : ''}
+                        
+                        ${report.images && report.images.length > 0 ? `
+                        <div class="mt-3">
+                            <h6>صور الأشعة:</h6>
+                            <div class="image-gallery">
+                                ${report.images.map((url, index) => `
+                                    <div class="gallery-item">
+                                        <img src="${url}" alt="صورة أشعة ${index + 1}">
+                                        <div class="gallery-item-overlay">صورة ${index + 1}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        });
+        
+        resultsContainer.innerHTML = resultsHTML;
+        radiologyResultsModal.show();
+    })
+    .catch((error) => {
+        console.error("Error getting radiology results: ", error);
+        resultsContainer.innerHTML = '<p class="text-center text-danger">حدث خطأ في تحميل النتائج</p>';
+    });
+}
+
+// إضافة معالجات الأحداث بعد تحميل البيانات
+function addRadiologyEventListeners() {
+    // معالجات الأحداث لأزرار طلب الأشعة
+    document.querySelectorAll('.request-radiology').forEach(button => {
+        button.addEventListener('click', function() {
+            const patientId = this.getAttribute('data-id');
+            const patientName = this.getAttribute('data-name');
+            const patientAge = this.getAttribute('data-age');
+            
+            document.getElementById('radiology-patient-id').value = patientId;
+            document.getElementById('radiology-patient-name').value = patientName;
+            document.getElementById('radiology-patient-age').value = patientAge;
+            
+            radiologyRequestModal.show();
+        });
+    });
+    
+    // معالجات الأحداث لأزرار عرض نتائج الأشعة
+    document.querySelectorAll('.view-radiology-results').forEach(button => {
+        button.addEventListener('click', function() {
+            const patientId = this.getAttribute('data-id');
+            const patientName = this.getAttribute('data-name');
+            viewRadiologyResults(patientId, patientName);
+        });
+    });
+}
+
+// استدعاء الدالة بعد تحميل المرضى
+// ستقوم باستدعاء addRadiologyEventListeners() بعد تحميل قائمة المرضى
+
+// ========== نهاية كود إدارة الأشعة ========== //
+    </script>
+    
+</body>
+</html>

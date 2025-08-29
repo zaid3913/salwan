@@ -27,7 +27,7 @@
             --dark: #212529;
             --hospital-blue: #1a75ff;
             --hospital-green: #2ecc71;
-            --lab-purple: #9b59b6;
+            --lab-purple: #338e7c;
             --archive: #8e44ad;
             --inquiries: #3498db;
             --blood: #e74c3c;
@@ -37,16 +37,110 @@
             --microbiology: #16a085;
             --hormones: #d35400;
             --blood-draw: #c0392b;
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 70px;
         }
 
         body {
             font-family: 'Tajawal', sans-serif;
             background-color: #f5f7fa;
             color: #333;
+            transition: margin-right 0.3s;
+        }
+
+        /* الشريط الجانبي */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: linear-gradient(135deg, var(--lab-purple), #276256);
+            color: white;
+            transition: width 0.3s;
+            z-index: 1000;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            overflow-x: hidden;
+        }
+        
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+        
+        .sidebar-header {
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .sidebar-header h3 {
+            font-size: 1.2rem;
+            margin: 0;
+            white-space: nowrap;
+        }
+        
+        .sidebar.collapsed .sidebar-header h3 {
+            display: none;
+        }
+        
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+        
+        .sidebar-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-right: 3px solid white;
+        }
+        
+        .sidebar-icon {
+            margin-left: 10px;
+            font-size: 1.2rem;
+            min-width: 25px;
+            text-align: center;
+        }
+        
+        .sidebar-text {
+            white-space: nowrap;
+        }
+        
+        .sidebar.collapsed .sidebar-text {
+            display: none;
+        }
+        
+        .main-content {
+            margin-right: var(--sidebar-width);
+            transition: margin-right 0.3s;
+        }
+        
+        .main-content.expanded {
+            margin-right: var(--sidebar-collapsed-width);
         }
 
         .hospital-header {
-            background: linear-gradient(135deg, var(--lab-purple), #8e44ad);
+            background: linear-gradient(135deg, var(--lab-purple), #276256);
             color: white;
             padding: 20px 0;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -150,23 +244,6 @@
 
         .test-urgent {
             border-right: 4px solid var(--danger);
-        }
-
-        .department-link {
-            color: white;
-            text-decoration: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            margin-left: 10px;
-            transition: all 0.3s;
-        }
-
-        .department-link.emergency {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .department-link.emergency:hover {
-            background-color: rgba(255, 255, 255, 0.3);
         }
 
         .patient-row {
@@ -378,6 +455,22 @@
                 flex-direction: column;
                 align-items: center;
             }
+            
+            .sidebar {
+                width: var(--sidebar-collapsed-width);
+            }
+            
+            .sidebar:not(.collapsed) {
+                width: var(--sidebar-width);
+            }
+            
+            .main-content {
+                margin-right: var(--sidebar-collapsed-width);
+            }
+            
+            .main-content.expanded {
+                margin-right: var(--sidebar-width);
+            }
         }
 
         /* تأثير السحب */
@@ -417,216 +510,258 @@
             margin-bottom: 15px;
         }
 
-.btn-delete {
-    background-color: var(--danger);
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 0.8rem;
-    transition: all 0.3s;
-    margin-right: 5px;
-}
+        .btn-delete {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+            margin-right: 5px;
+        }
 
-.btn-delete:hover {
-    background-color: #c82333;
-    transform: translateY(-2px);
-}
+        .btn-delete:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
 
-.btn-delete-patient {
-    background-color: var(--danger);
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    font-size: 0.9rem;
-    transition: all 0.3s;
-    margin-right: 5px;
-}
+        .btn-delete-patient {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            margin-right: 5px;
+        }
 
-.btn-delete-patient:hover {
-    background-color: #c82333;
-    transform: translateY(-2px);
-}
-
+        .btn-delete-patient:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
-    <!-- الهيدر -->
-    <header class="hospital-header">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-flask fa-3x me-3"></i>
-                    <div>
-                        <h1 class="h2 mb-0">مستشفى النسائية والاطفال التعليمي</h1>
-                        <p class="mb-0">نظام إدارة قسم المختبر</p>
-                    </div>
-                </div>
-                <div class="d-flex">
-                    <a href="index.html" class="department-link emergency">
-                        <i class="fas fa-ambulance me-2"></i>قسم الطوارئ
-                    </a>
-                    <div class="d-flex align-items-center bg-white bg-opacity-25 p-2 rounded me-2">
-                        <i class="fas fa-clock me-2"></i>
-                        <span id="current-time">00:00:00</span>
-                    </div>
-                    <div class="d-flex align-items-center bg-white bg-opacity-25 p-2 rounded">
-                        <i class="fas fa-calendar me-2"></i>
-                        <span id="current-date">--/--/----</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- قائمة الأقسام المخبرية -->
-            <div class="departments-menu mt-3">
-                <h6 class="text-center text-white mb-2">الأقسام المخبرية</h6>
-                <div class="departments-list">
-                    <span class="department-badge badge-blood text-white" data-department="وحده امراض الدم">وحده امراض الدم</span>
-                    <span class="department-badge badge-viruses text-white" data-department="وحده الفايروسات">وحده الفايروسات</span>
-                    <span class="department-badge badge-parasites text-white" data-department="وحده الطفيليات">وحده الطفيليات</span>
-                    <span class="department-badge badge-chemistry text-white" data-department="وحده الكيمياء السريريه">وحده الكيمياء السريريه</span>
-                    <span class="department-badge badge-microbiology text-white" data-department="وحده الأحياء المجهريه">وحده الأحياء المجهريه</span>
-                    <span class="department-badge badge-hormones text-white" data-department="وحده الهرمونات">وحده الهرمونات</span>
-                    <span class="department-badge badge-blood-draw text-white" data-department="وحده سحب الدم">وحده سحب الدم</span>
-                    <span class="department-badge bg-secondary text-white" data-department="الكل">عرض الكل</span>
-                </div>
-            </div>
+    <!-- الشريط الجانبي -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>أقسام المستشفى</h3>
+            <button class="toggle-btn" id="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
-    </header>
-
-    <!-- المحتوى الرئيسي -->
-    <div class="container my-4">
-        <!-- الإحصائيات -->
-        <div class="row">
-            <div class="col-md-3 mb-4">
-                <div class="lab-card stats-card bg-white">
-                    <i class="fas fa-vial fa-2x text-purple mb-2"></i>
-                    <h3 class="stats-number" id="total-tests">0</h3>
-                    <p class="text-muted">إجمالي الفحوصات</p>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="lab-card stats-card bg-white">
-                    <i class="fas fa-hourglass-half fa-2x text-warning mb-2"></i>
-                    <h3 class="stats-number" id="pending-tests">0</h3>
-                    <p class="text-muted">قيد الانتظار</p>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="lab-card stats-card bg-white">
-                    <i class="fas fa-vials fa-2x text-primary mb-2"></i>
-                    <h3 class="stats-number" id="in-progress-tests">0</h3>
-                    <p class="text-muted">قيد التنفيذ</p>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="lab-card stats-card bg-white">
-                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
-                    <h3 class="stats-number" id="completed-tests">0</h3>
-                    <p class="text-muted">تم الانتهاء</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- تبويبات التنقل بين الوضعين -->
-        <ul class="nav nav-tabs" id="mainTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="current-tests-tab" data-bs-toggle="tab" data-bs-target="#current-tests-content"
-                    type="button" role="tab" aria-controls="current-tests-content" aria-selected="true">
-                    الفحوصات الحالية
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="archive-tests-tab" data-bs-toggle="tab" data-bs-target="#archive-tests-content"
-                    type="button" role="tab" aria-controls="archive-tests-content" aria-selected="false">
-                    الأرشيف
-                </button>
-            </li>
-        </ul>
-
-        <div class="tab-content mt-4" id="mainTabsContent">
-            <!-- الفحوصات الحالية -->
-            <div class="tab-pane fade show active" id="current-tests-content" role="tabpanel" aria-labelledby="current-tests-tab">
-                <div class="lab-card bg-white p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h3 class="section-title">فحوصات المختبر المطلوبة</h3>
-                        <div class="department-filter">
-                            <select class="form-select" id="department-filter" style="width: auto;">
-                                <option value="الكل">جميع الأقسام</option>
-                                <option value="وحده امراض الدم">وحده امراض الدم</option>
-                                <option value="وحده الفايروسات">وحده الفايروسات</option>
-                                <option value="وحده الطفيليات">وحده الطفيليات</option>
-                                <option value="وحده الكيمياء السريريه">وحده الكيمياء السريريه</option>
-                                <option value="وحده الأحياء المجهريه">وحده الأحياء المجهريه</option>
-                                <option value="وحده الهرمونات">وحده الهرمونات</option>
-                                <option value="وحده سحب الدم">وحده سحب الدم</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th></th>
-                                    <th>اسم المريض</th>
-                                    <th>العمر</th>
-                                    <th>القسم</th>
-                                    <th>عدد الفحوصات</th>
-                                    <th>وقت الطلب</th>
-                                    <th>الإجراءات</th>
-                                    <th>النتائج</th>
-                                </tr>
-                            </thead>
-                            <tbody id="patients-table-body">
-                                <!-- سيتم ملء هذا الجدول من خلال JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- الأرشيف -->
-            <div class="tab-pane fade" id="archive-tests-content" role="tabpanel" aria-labelledby="archive-tests-tab">
-                <div class="lab-card bg-white p-4">
-                    <h3 class="section-title">الأرشيف - الفحوصات المكتملة</h3>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>اسم المريض</th>
-                                    <th>العمر</th>
-                                    <th>القسم</th>
-                                    <th>نوع الفحص</th>
-                                    <th>تاريخ الإكمال</th>
-                                    <th>عرض النتيجة</th>
-                                </tr>
-                            </thead>
-                            <tbody id="archive-table-body">
-                                <!-- سيتم ملء هذا الجدول من خلال JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="sidebar-item">
+                <span class="sidebar-icon"><i class="fas fa-ambulance"></i></span>
+                <span class="sidebar-text">قسم الطوارئ</span>
+            </a>
+            <a href="consultation.html" class="sidebar-item">
+                <span class="sidebar-icon"><i class="fas fa-stethoscope"></i></span>
+                <span class="sidebar-text">قسم الاستشارية</span>
+            </a>
+            <a href="lab.html" class="sidebar-item ">
+                <span class="sidebar-icon"><i class="fas fa-flask"></i></span>
+                <span class="sidebar-text">قسم المختبر</span>
+                <a href="rcu.html" class="sidebar-item ">
+                <span class="sidebar-icon"><i class="fas fa-procedures"></i></span>
+                <span class="sidebar-text">العناية المركزة</span>
+            </a>
+            <a href="radiology.html" class="sidebar-item ">
+                <span class="sidebar-icon"><i class="fas fa-x-ray"></i></span>
+                <span class="sidebar-text">قسم الأشعة</span>
+            </a>
+            <a href="nicu.html" class="sidebar-item 
+            ">
+                <span class="sidebar-icon"><i class="fas fa-baby"></i></span>
+                <span class="sidebar-text"> قسم الخدج البيتي </span>
+            </a>
+            <a href="nicu_sterile.html" class="sidebar-item ">
+                <span class="sidebar-icon"><i class="fas fa-shield-alt"></i></span>
+                <span class="sidebar-text">قسم الخدج المعقم</span>
+            </a>
+            <a href="dental.html" class="sidebar-item ">
+                <span class="sidebar-icon"><i class="fas fa-tooth"></i></span>
+                <span class="sidebar-text">وحدة الأسنان</span>
+            </a>
         </div>
     </div>
 
-    <!-- التذييل -->
-    <footer class="bg-dark text-white py-4 mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5>مستشفى النسائية والاطفال التعليمي - قسم المختبر</h5>
-                    <p>خدمات الفحوصات المخبرية الدقيقة</p>
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content" id="main-content">
+        <!-- الهيدر -->
+        <header class="hospital-header">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-flask fa-3x me-3"></i>
+                        <div>
+                            <h1 class="h2 mb-0">مستشفى النسائية والاطفال التعليمي</h1>
+                            <p class="mb-0">نظام إدارة قسم المختبر</p>
+                        </div>
+                    </div>
+                    <div class="d-flex">
+                        <div class="d-flex align-items-center bg-white bg-opacity-25 p-2 rounded me-2">
+                            <i class="fas fa-clock me-2"></i>
+                            <span id="current-time">00:00:00</span>
+                        </div>
+                        <div class="d-flex align-items-center bg-white bg-opacity-25 p-2 rounded">
+                            <i class="fas fa-calendar me-2"></i>
+                            <span id="current-date">--/--/----</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <p>© 2025 نظام إدارة المستشفى. جميع الحقوق محفوظة.</p>
-                    <p>قسم المختبر - الإصدار 1.0</p>
+
+                <!-- قائمة الأقسام المخبرية -->
+                <div class="departments-menu mt-3">
+                    <h6 class="text-center text-white mb-2">الأقسام المخبرية</h6>
+                    <div class="departments-list">
+                        <span class="department-badge badge-blood text-white" data-department="وحده امراض الدم">وحده امراض الدم</span>
+                        <span class="department-badge badge-viruses text-white" data-department="وحده الفايروسات">وحده الفايروسات</span>
+                        <span class="department-badge badge-parasites text-white" data-department="وحده الطفيليات">وحده الطفيليات</span>
+                        <span class="department-badge badge-chemistry text-white" data-department="وحده الكيمياء السريريه">وحده الكيمياء السريريه</span>
+                        <span class="department-badge badge-microbiology text-white" data-department="وحده الأحياء المجهريه">وحده الأحياء المجهريه</span>
+                        <span class="department-badge badge-hormones text-white" data-department="وحده الهرمونات">وحده الهرمونات</span>
+                        <span class="department-badge bg-secondary text-white" data-department="الكل">عرض الكل</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- المحتوى الرئيسي -->
+        <div class="container my-4">
+            <!-- الإحصائيات -->
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <div class="lab-card stats-card bg-white">
+                        <i class="fas fa-vial fa-2x text-purple mb-2"></i>
+                        <h3 class="stats-number" id="total-tests">0</h3>
+                        <p class="text-muted">إجمالي الفحوصات</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="lab-card stats-card bg-white">
+                        <i class="fas fa-hourglass-half fa-2x text-warning mb-2"></i>
+                        <h3 class="stats-number" id="pending-tests">0</h3>
+                        <p class="text-muted">قيد الانتظار</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="lab-card stats-card bg-white">
+                        <i class="fas fa-vials fa-2x text-primary mb-2"></i>
+                        <h3 class="stats-number" id="in-progress-tests">0</h3>
+                        <p class="text-muted">قيد التنفيذ</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="lab-card stats-card bg-white">
+                        <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                        <h3 class="stats-number" id="completed-tests">0</h3>
+                        <p class="text-muted">تم الانتهاء</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- تبويبات التنقل بين الوضعين -->
+            <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="current-tests-tab" data-bs-toggle="tab" data-bs-target="#current-tests-content"
+                        type="button" role="tab" aria-controls="current-tests-content" aria-selected="true">
+                        الفحوصات الحالية
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="archive-tests-tab" data-bs-toggle="tab" data-bs-target="#archive-tests-content"
+                        type="button" role="tab" aria-controls="archive-tests-content" aria-selected="false">
+                        الأرشيف
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content mt-4" id="mainTabsContent">
+                <!-- الفحوصات الحالية -->
+                <div class="tab-pane fade show active" id="current-tests-content" role="tabpanel" aria-labelledby="current-tests-tab">
+                    <div class="lab-card bg-white p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="section-title">فحوصات المختبر المطلوبة</h3>
+                            <div class="department-filter">
+                                <select class="form-select" id="department-filter" style="width: auto;">
+                                    <option value="الكل">جميع الأقسام</option>
+                                    <option value="وحده امراض الدم">وحده امراض الدم</option>
+                                    <option value="وحده الفايروسات">وحده الفايروسات</option>
+                                    <option value="وحده الطفيليات">وحده الطفيليات</option>
+                                    <option value="وحده الكيمياء السريريه">وحده الكيمياء السريريه</option>
+                                    <option value="وحده الأحياء المجهريه">وحده الأحياء المجهريه</option>
+                                    <option value="وحده الهرمونات">وحده الهرمونات</option>
+                                  
+                                </select>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th></th>
+                                        <th>اسم المريض</th>
+                                        <th>العمر</th>
+                                        <th>القسم</th>
+                                        <th>عدد الفحوصات</th>
+                                        <th>وقت الطلب</th>
+                                        <th>الإجراءات</th>
+                                        <th>النتائج</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="patients-table-body">
+                                    <!-- سيتم ملء هذا الجدول من خلال JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- الأرشيف -->
+                <div class="tab-pane fade" id="archive-tests-content" role="tabpanel" aria-labelledby="archive-tests-tab">
+                    <div class="lab-card bg-white p-4">
+                        <h3 class="section-title">الأرشيف - الفحوصات المكتملة</h3>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>اسم المريض</th>
+                                        <th>العمر</th>
+                                        <th>القسم</th>
+                                        <th>نوع الفحص</th>
+                                        <th>تاريخ الإكمال</th>
+                                        <th>عرض النتيجة</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="archive-table-body">
+                                    <!-- سيتم ملء هذا الجدول من خلال JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </footer>
+
+        <!-- التذييل -->
+        <footer style="background-color: #276256; color: white;" class="py-4 mt-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>مستشفى النسائية والاطفال التعليمي - قسم المختبر</h5>
+                        <p>خدمات الفحوصات المخبرية الدقيقة</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p>© 2025 نظام إدارة المستشفى. جميع الحقوق محفوظة.</p>
+                        <p>قسم المختبر - الإصدار 1.0</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
 
     <!-- مودال إضافة نتيجة التحليل -->
     <div class="modal fade" id="testResultModal" tabindex="-1" aria-labelledby="testResultModalLabel" aria-hidden="true">
@@ -781,6 +916,36 @@
     <!-- Bootstrap & Firebase -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // إدارة الشريط الجانبي
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        const toggleBtn = document.getElementById('sidebar-toggle');
+        
+        // التحقق من حالة الشريط في localStorage
+        const isSidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        
+        if (isSidebarCollapsed) {
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
+            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+        }
+        
+        toggleBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+            
+            // حفظ الحالة في localStorage
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+            
+            // تغيير الأيقونة
+            if (isCollapsed) {
+                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            } else {
+                toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+            }
+        });
+
         // تحديث الوقت والتاريخ
         function updateDateTime() {
             const now = new Date();
@@ -937,85 +1102,85 @@
             }
         }
 
-// دوال الحذف
-function deleteTest(testId) {
-    if (confirm('هل أنت متأكد من حذف هذا الفحص؟')) {
-        db.collection('lab_tests').doc(testId).delete()
-            .then(() => {
-                alert('تم حذف الفحص بنجاح');
-                loadLabTests();
-            })
-            .catch((error) => {
-                console.error("Error deleting test: ", error);
-                alert('حدث خطأ أثناء حذف الفحص');
-            });
-    }
-}
+        // دوال الحذف
+        function deleteTest(testId) {
+            if (confirm('هل أنت متأكد من حذف هذا الفحص؟')) {
+                db.collection('lab_tests').doc(testId).delete()
+                    .then(() => {
+                        alert('تم حذف الفحص بنجاح');
+                        loadLabTests();
+                    })
+                    .catch((error) => {
+                        console.error("Error deleting test: ", error);
+                        alert('حدث خطأ أثناء حذف الفحص');
+                    });
+            }
+        }
 
-function deletePatientTests(patientId) {
-    if (confirm('هل أنت متأكد من حذف جميع فحوصات هذا المريض؟')) {
-        db.collection('lab_tests')
-            .where('patientId', '==', patientId)
-            .get()
-            .then((querySnapshot) => {
-                const batch = db.batch();
-                querySnapshot.forEach((doc) => {
-                    batch.delete(doc.ref);
-                });
-                return batch.commit();
-            })
-            .then(() => {
-                alert('تم حذف جميع فحوصات المريض بنجاح');
-                loadLabTests();
-            })
-            .catch((error) => {
-                console.error("Error deleting patient tests: ", error);
-                alert('حدث خطأ أثناء حذف فحوصات المريض');
-            });
-    }
-}
+        function deletePatientTests(patientId) {
+            if (confirm('هل أنت متأكد من حذف جميع فحوصات هذا المريض؟')) {
+                db.collection('lab_tests')
+                    .where('patientId', '==', patientId)
+                    .get()
+                    .then((querySnapshot) => {
+                        const batch = db.batch();
+                        querySnapshot.forEach((doc) => {
+                            batch.delete(doc.ref);
+                        });
+                        return batch.commit();
+                    })
+                    .then(() => {
+                        alert('تم حذف جميع فحوصات المريض بنجاح');
+                        loadLabTests();
+                    })
+                    .catch((error) => {
+                        console.error("Error deleting patient tests: ", error);
+                        alert('حدث خطأ أثناء حذف فحوصات المريض');
+                    });
+            }
+        }
 
-function deleteArchivedTest(testId) {
-    if (confirm('هل أنت متأكد من حذف هذا الفحص المؤرشف؟')) {
-        db.collection('lab_tests').doc(testId).delete()
-            .then(() => {
-                alert('تم حذف الفحص المؤرشف بنجاح');
-                loadLabTests();
-            })
-            .catch((error) => {
-                console.error("Error deleting archived test: ", error);
-                alert('حدث خطأ أثناء حذف الفحص المؤرشف');
-            });
-    }
-}
+        function deleteArchivedTest(testId) {
+            if (confirm('هل أنت متأكد من حذف هذا الفحص المؤرشف؟')) {
+                db.collection('lab_tests').doc(testId).delete()
+                    .then(() => {
+                        alert('تم حذف الفحص المؤرشف بنجاح');
+                        loadLabTests();
+                    })
+                    .catch((error) => {
+                        console.error("Error deleting archived test: ", error);
+                        alert('حدث خطأ أثناء حذف الفحص المؤرشف');
+                    });
+            }
+        }
 
-function deletePatientFully(patientId, patientName) {
-    if (confirm(`هل أنت متأكد من حذف المريض ${patientName} بشكل كامل مع جميع فحوصاته؟ هذا الإجراء لا يمكن التراجع عنه.`)) {
-        // أولاً: حذف جميع فحوصات المريض
-        db.collection('lab_tests')
-            .where('patientId', '==', patientId)
-            .get()
-            .then((querySnapshot) => {
-                const batch = db.batch();
-                querySnapshot.forEach((doc) => {
-                    batch.delete(doc.ref);
-                });
-                return batch.commit();
-            })
-            .then(() => {
-                // ثانياً: حذف المريض من مجموعة patients
-                return db.collection('patients').doc(patientId).delete();
-            })
-            .then(() => {
-                alert('تم حذف المريض و جميع فحوصاته بنجاح');
-                loadLabTests();
-            })
-            .catch((error) => {
-                console.error("Error deleting patient fully: ", error);
-                alert('حدث خطأ أثناء حذف المريض');
-            });
-    }
-}
+        function deletePatientFully(patientId, patientName) {
+            if (confirm(`هل أنت متأكد من حذف المريض ${patientName} بشكل كامل مع جميع فحوصاته؟ هذا الإجراء لا يمكن التراجع عنه.`)) {
+                // أولاً: حذف جميع فحوصات المريض
+                db.collection('lab_tests')
+                    .where('patientId', '==', patientId)
+                    .get()
+                    .then((querySnapshot) => {
+                        const batch = db.batch();
+                        querySnapshot.forEach((doc) => {
+                            batch.delete(doc.ref);
+                        });
+                        return batch.commit();
+                    })
+                    .then(() => {
+                        // ثانياً: حذف المريض من مجموعة patients
+                        return db.collection('patients').doc(patientId).delete();
+                    })
+                    .then(() => {
+                        alert('تم حذف المريض و جميع فحوصاته بنجاح');
+                        loadLabTests();
+                    })
+                    .catch((error) => {
+                        console.error("Error deleting patient fully: ", error);
+                        alert('حدث خطأ أثناء حذف المريض');
+                    });
+            }
+        }
 
         // تحميل فحوصات المختبر من Firestore
         function loadLabTests() {
@@ -1286,24 +1451,24 @@ function deletePatientFully(patientId, patientName) {
                     document.getElementById('archive-table-body').innerHTML = '<tr><td colspan="6" class="text-center text-danger">حدث خطأ في تحميل البيانات</td></tr>';
                 });
 
-// مستمع لأزرار حذف الفحوصات الفردية
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('delete-test')) {
-        const testId = e.target.getAttribute('data-test-id');
-        deleteTest(testId);
-    }
-    
-    if (e.target.classList.contains('delete-patient')) {
-        const patientId = e.target.getAttribute('data-patient-id');
-        deletePatientTests(patientId);
-    }
-    
-    if (e.target.classList.contains('delete-archived')) {
-        const testId = e.target.getAttribute('data-test-id');
-        deleteArchivedTest(testId);
-    }
+        // مستمع لأزرار حذف الفحوصات الفردية
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('delete-test')) {
+                const testId = e.target.getAttribute('data-test-id');
+                deleteTest(testId);
+            }
+            
+            if (e.target.classList.contains('delete-patient')) {
+                const patientId = e.target.getAttribute('data-patient-id');
+                deletePatientTests(patientId);
+            }
+            
+            if (e.target.classList.contains('delete-archived')) {
+                const testId = e.target.getAttribute('data-test-id');
+                deleteArchivedTest(testId);
+            }
 
-});
+        });
 
         }
 
@@ -1316,7 +1481,7 @@ document.addEventListener('click', function(e) {
                 "وحده الكيمياء السريريه": "chemistry",
                 "وحده الأحياء المجهريه": "microbiology",
                 "وحده الهرمونات": "hormones",
-                "وحده سحب الدم": "blood-draw"
+                
             };
 
             return departmentMap[department] || "archive";
